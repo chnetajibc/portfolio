@@ -1,0 +1,194 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #f4f4f1;
+  color: #0a0a0a;
+  overflow-x: hidden;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+html.dark body {
+  background: #0a0a0c;
+  color: #f5f5f5;
+}
+
+code, .font-mono {
+  font-family: 'JetBrains Mono', Menlo, Monaco, Consolas, monospace;
+}
+
+.font-display {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* Subtle grain texture */
+.grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.035;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+html.dark .grain::before { opacity: 0.06; mix-blend-mode: screen; }
+
+/* Soft animated background blobs */
+.bg-aurora {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+.bg-aurora::before,
+.bg-aurora::after {
+  content: "";
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+  opacity: 0.55;
+}
+.bg-aurora::before {
+  width: 480px; height: 480px;
+  background: radial-gradient(circle at 30% 30%, #c7d2fe 0%, transparent 70%);
+  top: -120px; left: -120px;
+  animation: drift 22s ease-in-out infinite alternate;
+}
+.bg-aurora::after {
+  width: 520px; height: 520px;
+  background: radial-gradient(circle at 70% 70%, #fed7aa 0%, transparent 70%);
+  bottom: -160px; right: -120px;
+  animation: drift2 26s ease-in-out infinite alternate;
+}
+html.dark .bg-aurora::before {
+  background: radial-gradient(circle at 30% 30%, #1e3a8a 0%, transparent 70%);
+  opacity: 0.45;
+}
+html.dark .bg-aurora::after {
+  background: radial-gradient(circle at 70% 70%, #4a044e 0%, transparent 70%);
+  opacity: 0.35;
+}
+@keyframes drift {
+  0% { transform: translate(0,0) scale(1); }
+  100% { transform: translate(60px, 40px) scale(1.1); }
+}
+@keyframes drift2 {
+  0% { transform: translate(0,0) scale(1); }
+  100% { transform: translate(-60px, -40px) scale(1.05); }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.18; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.4); }
+}
+
+@keyframes ping-soft {
+  0% { transform: scale(1); opacity: 0.65; }
+  75%, 100% { transform: scale(2.1); opacity: 0; }
+}
+
+.thin-scroll::-webkit-scrollbar { width: 6px; }
+.thin-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.18); border-radius: 999px; }
+html.dark .thin-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); }
+.thin-scroll::-webkit-scrollbar-track { background: transparent; }
+
+::selection { background: #1d4ed8; color: #fff; }
+
+@layer base {
+  :root {
+    --background: 60 10% 96%;
+    --foreground: 0 0% 4%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 4%;
+    --primary: 224 76% 38%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 94%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 92%;
+    --muted-foreground: 0 0% 38%;
+    --accent: 14 100% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 224 76% 38%;
+    --radius: 1rem;
+  }
+  .dark {
+    --background: 240 6% 5%;
+    --foreground: 0 0% 96%;
+    --card: 240 6% 8%;
+    --card-foreground: 0 0% 96%;
+    --popover: 240 6% 8%;
+    --popover-foreground: 0 0% 96%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 4% 14%;
+    --secondary-foreground: 0 0% 96%;
+    --muted: 240 4% 14%;
+    --muted-foreground: 0 0% 64%;
+    --accent: 217 91% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 4% 18%;
+    --input: 240 4% 18%;
+    --ring: 217 91% 60%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground; }
+}
+
+/* Avatar shimmer */
+.avatar-shine {
+  background: radial-gradient(120% 120% at 30% 25%, #2a2a2a 0%, #0a0a0a 55%, #000 100%);
+  position: relative;
+  overflow: hidden;
+}
+.avatar-shine::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background: conic-gradient(from 180deg at 50% 50%, transparent 0deg, rgba(255,255,255,0.18) 90deg, transparent 180deg);
+  animation: spin 8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.dot { animation: blink 1.2s infinite both; }
+.dot:nth-child(2){ animation-delay: 0.2s; }
+.dot:nth-child(3){ animation-delay: 0.4s; }
+@keyframes blink { 0%,80%,100% { opacity: 0.2; } 40% { opacity: 1; } }
+
+/* Best-effort: hide Emergent platform watermark/badge if injected */
+#emergent-badge,
+.emergent-badge,
+[data-emergent-badge="true"],
+a[href*="app.emergent.sh"][target="_blank"],
+a[href*="emergent.sh"][aria-label*="Made"],
+div[class*="EmergentWatermark"],
+div[class*="emergent-watermark"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
