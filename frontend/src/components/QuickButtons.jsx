@@ -1,13 +1,14 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Briefcase, FolderGit2, Wrench, Trophy, ArrowUpRight } from "lucide-react";
+import sectionsData from "../data/sections.json";
 
-const items = [
-  { id: "experience", label: "Experience", sub: "5+ years · 3 roles", Icon: Briefcase },
-  { id: "projects", label: "Projects", sub: "4 featured · OSS", Icon: FolderGit2 },
-  { id: "skills", label: "Skills", sub: "AI · Cloud · SDE", Icon: Wrench },
-  { id: "achievements", label: "Achievements", sub: "Talks · Patent", Icon: Trophy },
-];
+const iconMap = {
+  Briefcase,
+  FolderGit2,
+  Wrench,
+  Trophy,
+};
 
 export default function QuickButtons({ onOpen, big = false }) {
   const padCls = big ? "px-4 py-4" : "px-3.5 py-3";
@@ -18,11 +19,12 @@ export default function QuickButtons({ onOpen, big = false }) {
 
   return (
     <div className="grid grid-cols-2 gap-2.5 w-full">
-      {items.map((it, i) => {
-        const { Icon } = it;
+      {sectionsData.map((it, i) => {
+        const Icon = iconMap[it.icon] || Briefcase;
         return (
           <motion.button
             key={it.id}
+            type="button"
             onClick={() => onOpen(it.id)}
             initial={{ y: 10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -33,7 +35,7 @@ export default function QuickButtons({ onOpen, big = false }) {
           >
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-2.5">
-                <span className={`${iconBoxCls} rounded-lg bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 flex items-center justify-center group-hover:bg-blue-700 dark:group-hover:bg-blue-500 group-hover:text-white dark:group-hover:text-white transition-colors`}>
+                <span className={`${iconBoxCls} hidden lg:flex rounded-lg bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 items-center justify-center group-hover:bg-blue-700 dark:group-hover:bg-blue-500 group-hover:text-white dark:group-hover:text-white transition-colors`}>
                   <Icon className={iconCls} strokeWidth={2.2} />
                 </span>
                 <div>

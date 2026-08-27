@@ -1,0 +1,13 @@
+[
+  {
+    "id": "ai",
+    "label": "Your AI/ML experience?",
+    "keep": true
+  },
+  {
+    "id": "hire",
+    "label": "How do I contact you?",
+    "highlight": true,
+    "keep": true
+  }
+]

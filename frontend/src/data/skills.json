@@ -1,0 +1,68 @@
+[
+  {
+    "group": "AI / ML",
+    "items": [
+      { "name": "PyTorch", "level": 90 },
+      { "name": "TensorFlow", "level": 85 },
+      { "name": "LangChain", "level": 88 },
+      { "name": "LangGraph", "level": 85 },
+      { "name": "Transformers / LLMs", "level": 90 },
+      { "name": "RAG & Vector DBs", "level": 92 },
+      { "name": "MLOps", "level": 84 },
+      { "name": "Triton Inference Server", "level": 85 },
+      { "name": "ONNX", "level": 78 }
+    ]
+  },
+  {
+    "group": "Languages",
+    "items": [
+      { "name": "Python", "level": 95 },
+      { "name": "JavaScript", "level": 85 },
+      { "name": "TypeScript", "level": 85 },
+      { "name": "Java", "level": 70 },
+      { "name": "C", "level": 70 },
+      { "name": "Rust", "level": 70 },
+      { "name": "Go", "level": 65 },
+      { "name": "SQL", "level": 62 }
+    ]
+  },
+  {
+    "group": "Frameworks & Libraries",
+    "items": [
+      { "name": "FastAPI", "level": 95 },
+      { "name": "React.js", "level": 80 },
+      { "name": "Next.js", "level": 80 },
+      { "name": "electron.js", "level": 60},
+      { "name": "React-Native", "level": 70 },
+      { "name": "Express.js", "level": 85 },
+      { "name": "Flask", "level": 80 }
+    ]
+  },
+  {
+    "group": "Databases & Vector Stores",
+    "items": [
+      { "name": "Redis", "level": 90 },
+      { "name": "MongoDB", "level": 90 },
+      { "name": "DynamoDB", "level": 80 },
+      { "name": "Pinecone", "level": 85 },
+      { "name": "MySQL", "level": 80 },
+      { "name": "PostgreSQL", "level": 90 },
+      { "name": "ChromaDB", "level": 85 }
+    ]
+  },
+  {
+    "group": "Cloud & Tools",
+    "items": [
+      { "name": "AWS", "level": 90 },
+      { "name": "GCP", "level": 88 },
+      { "name": "Docker", "level": 100 },
+      { "name": "Linux", "level": 100 },
+      { "name": "Git", "level": 90 },
+      { "name": "Postman", "level": 80 },
+      { "name": "Swagger", "level": 85 },
+      { "name": "Figma", "level": 80 },
+      { "name": "Flipper", "level": 70 },
+      { "name": "MCP", "level": 100 }
+    ]
+  }
+]

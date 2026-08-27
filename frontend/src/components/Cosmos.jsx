@@ -5,34 +5,35 @@ import React from "react";
 export default function Cosmos({ className = "" }) {
   // Each orbit: radius, planet color, orbit period (s), starting angle (deg).
   const orbits = [
+    { r: 85, period: 28, color: "#f59e0b", phase: 45, size: 5 },
     { r: 110, period: 38, color: "#fbbf24", phase: 0, size: 6 },
     { r: 168, period: 58, color: "#fde68a", phase: 130, size: 4.5 },
     { r: 226, period: 78, color: "#fcd34d", phase: 220, size: 7 },
+    { r: 285, period: 95, color: "#fef3c7", phase: 310, size: 5.5 },
   ];
 
   return (
     <div className={`pointer-events-none absolute ${className}`} aria-hidden>
-      {/* Sun glow */}
-      <div
-        className="absolute rounded-full"
-        style={{
-          width: 360,
-          height: 360,
-          right: -120,
-          top: -120,
-          background:
-            "radial-gradient(circle at 35% 35%, rgba(253, 186, 116, 0.32) 0%, rgba(253, 186, 116, 0.10) 30%, transparent 65%)",
-          filter: "blur(20px)",
-        }}
-      />
-
-      {/* Orbit container — centred at top-right, planets revolve around it */}
-      <div className="absolute" style={{ right: -50, top: -60, width: 0, height: 0 }}>
-        {/* Static orbit rings */}
+      {/* Orbit container — moved further right; sun centered at its origin */}
+      <div className="absolute" style={{ right: -10, top: 20, width: 0, height: 0 }}>
+        {/* Sun glow — centered at 0,0 (same centre as rings), radius +15% */}
+        <div
+          className="absolute rounded-full"
+          style={{
+            width: 414,
+            height: 414,
+            left: -207,
+            top: -207,
+            background:
+              "radial-gradient(circle at 35% 35%, rgba(253, 186, 116, 0.32) 0%, rgba(253, 186, 116, 0.10) 30%, transparent 65%)",
+            filter: "blur(20px)",
+          }}
+        />
+        {/* Static orbit rings — expanded viewBox to fit outer planet */}
         <svg
-          viewBox="-260 -260 520 520"
+          viewBox="-310 -310 620 620"
           className="absolute"
-          style={{ width: 520, height: 520, left: -260, top: -260 }}
+          style={{ width: 620, height: 620, left: -310, top: -310 }}
         >
           <g stroke="currentColor" strokeWidth="0.6" fill="none" className="text-blue-700/30 dark:text-blue-400/25">
             {orbits.map((o) => (

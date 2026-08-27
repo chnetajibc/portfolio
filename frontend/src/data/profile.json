@@ -1,0 +1,48 @@
+{
+  "name": "CH Netaji Bhadraiahnath Chowdary",
+  "shortName": "Netaji",
+  "initials": "NBC",
+  "shortInitial": "N",
+  "titles": [
+    "Entrepreneur",
+    "Freelancer",
+    "Software Engineer",
+    "AI Engineer"
+  ],
+  "bio": "I'm a software engineer who lives at the intersection of clean code and curious ideas. I ship production ML systems by day and sketch orbital trajectories by night.\n\nLately I'm obsessed with making AI feel less like a black box and more like a thoughtful colleague — {blue}so this page is a conversation, not a résumé.{/blue}",
+  "location": "Chennai, India",
+  "email": "chnetajibc@gmail.com",
+  "phone": "+91 9840107526",
+  "linkedin": "linkedin.com/in/chnetaji",
+  "available": true,
+  "interests": [
+    {
+      "icon": "sun",
+      "label": "heliophile"
+    },
+    {
+      "icon": "rocket",
+      "label": "space travel"
+    },
+    {
+      "icon": "orbit",
+      "label": "stargazer"
+    }
+  ],
+  "languages": [
+    {
+      "native": "தமிழ்",
+      "roman": "Tamil",
+      "note": "love"
+    },
+    {
+      "native": "తెలుగు",
+      "roman": "Telugu",
+      "note": "mother tongue"
+    },
+    {
+      "native": "English",
+      "roman": "English"
+    }
+  ]
+}

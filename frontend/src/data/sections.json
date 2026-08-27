@@ -1,0 +1,26 @@
+[
+  {
+    "id": "experience",
+    "label": "Experience",
+    "sub": "4 roles · 1.5 years",
+    "icon": "Briefcase"
+  },
+  {
+    "id": "projects",
+    "label": "Projects",
+    "sub": "2 projects · 3 Products",
+    "icon": "FolderGit2"
+  },
+  {
+    "id": "skills",
+    "label": "Skills",
+    "sub": "AI · Cloud · SDE",
+    "icon": "Wrench"
+  },
+  {
+    "id": "achievements",
+    "label": "Achievements",
+    "sub": "Awards & Contests",
+    "icon": "Trophy"
+  }
+]

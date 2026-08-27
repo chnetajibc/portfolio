@@ -1,0 +1,32 @@
+[
+  {
+    "id": "github",
+    "label": "GitHub",
+    "url": "https://github.com",
+    "color": "#181717"
+  },
+  {
+    "id": "linkedin",
+    "label": "LinkedIn",
+    "url": "https://linkedin.com/in/chnetaji",
+    "color": "#0A66C2"
+  },
+  {
+    "id": "x",
+    "label": "X / Twitter",
+    "url": "https://x.com",
+    "color": "#0f172a"
+  },
+  {
+    "id": "threads",
+    "label": "Threads",
+    "url": "https://threads.net",
+    "color": "#000000"
+  },
+  {
+    "id": "discord",
+    "label": "Discord",
+    "url": "https://discord.com",
+    "color": "#5865F2"
+  }
+]

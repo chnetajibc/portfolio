@@ -5,6 +5,7 @@ import {
   GithubIcon,
   LinkedinIcon,
   XIcon,
+  ThreadsIcon,
   MailIcon,
   LeetcodeIcon,
   DiscordIcon,
@@ -14,6 +15,7 @@ const iconMap = {
   github: GithubIcon,
   linkedin: LinkedinIcon,
   x: XIcon,
+  threads: ThreadsIcon,
   mail: MailIcon,
   leetcode: LeetcodeIcon,
   discord: DiscordIcon,
@@ -25,7 +27,7 @@ export default function SocialLinks({ size = "md" }) {
   const gap = size === "sm" ? "gap-2" : "gap-3.5";
 
   return (
-    <div className={`flex ${gap} items-center`}>
+    <div className={`flex ${gap} items-center flex-wrap`}>
       {socials.map((s, i) => {
         const Icon = iconMap[s.id] || MailIcon;
         const brand = s.color;

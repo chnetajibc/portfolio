@@ -1,0 +1,90 @@
+[
+  {
+    "id": "exp1",
+    "role": "SDE Intern",
+    "company": "Amazon",
+    "period": "Jan 2026 — Jun 2026",
+    "location": "Bengaluru, IN",
+    "highlights": [
+      "Engineered an Alexa+ 1P Expert utilizing error classification models and downstream service integrations to contextualize playback termination utterances. Enhanced system observability by correlating audio telemetry and device configuration events.",
+      "Developed an Alexa+ 1P Expert using the Alexa Skills Kit (ASK) and integrated a 3P Audio partner MCP AddOn delegation to facilitate voice-controlled interactions with Spotify.",
+      "Implemented prompt optimizations and feature gating for allowlisted customers, leveraged AWS CDK for skill deployment, and reduced latency to under 1 second.",
+      "Optimized video ad playback across Echo Show devices by analyzing codec formats and bitrate efficiency; implemented hardware acceleration strategies to achieve near zero-impact overhead on CPU, GPU, and RAM utilization.",
+      "Styled adaptive UI components in react-native to ensure consistent rendering and layout responsiveness across all Alexa Echo Show display form factors."
+    ],
+    "stack": [
+      "Alexa Skills Kit",
+      "AWS cdk",
+      "AWS",
+      "CDN",
+      "React Native",
+      "Python",
+      "MCP",
+      "Java",
+      "Typescript"
+    ]
+  },
+  {
+    "id": "exp2",
+    "role": "AI Engineering Intern",
+    "company": "Detect Technologies",
+    "period": "Sep 2025 — Nov 2025",
+    "location": "Chennai, IN",
+    "highlights": [
+      "Designed an internal Model-as-a-Service (MaaS) platform utilizing Triton Inference Server, exposing deep learning models via APIs to streamline integration for cross-functional software teams.",
+      "Architected a modular synthetic dataset generation framework by orchestrating multiple multi-models, which streamlined the production of datasets through automated image generation & editing for enterprise model training."
+    ],
+    "stack": [
+      "Triton Inference Server",
+      "Python",
+      "Deep Learning",
+      "API Design",
+      "MLOps",
+      "FastAPI",
+      "Prompt Engineering",
+      "Synthetic Dataset Generation",
+      "React.js"
+    ]
+  },
+  {
+    "id": "exp3",
+    "role": "Intern",
+    "company": "Smilo Data Consultancy",
+    "period": "May 2025 — Aug 2025",
+    "location": "Remote",
+    "highlights": [
+      "Engineered an end-to-end automation pipeline using a FastAPI backend to integrate Autotask and Datto RMM systems, leveraging RAG-based vector search for real-time SOP retrieval.",
+      "Provided intelligent script recommendations and seamless remote remediation execution through RAG-based vector search."
+    ],
+    "stack": [
+      "FastAPI",
+      "Next.js",
+      "RAG",
+      "Vector Databases",
+      "Python",
+      "LangChain",
+      "OpeenAI",
+      "MongoDB",
+      "PineCone"
+    ]
+  },
+  {
+    "id": "exp4",
+    "role": "Project Intern",
+    "company": "HCLTech",
+    "period": "Jul 2024 — Oct 2024",
+    "location": "Remote",
+    "highlights": [
+      "Trained an LSTM-based Voice Emotion Recognition model utilizing extracted MFCC features from audio clips, implementing temporal audio segmentation for parallelized inference.",
+      "Achieved a 30% reduction in processing latency for multi-class emotional classification through parallelized inference and result aggregation."
+    ],
+    "stack": [
+      "LSTM",
+      "MFCC",
+      "Python",
+      "PyTorch",
+      "Flask",
+      "Web development"
+    ]
+  }
+]

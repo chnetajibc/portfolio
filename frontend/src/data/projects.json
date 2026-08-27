@@ -1,0 +1,36 @@
+[
+  {
+    "name": "CTI Threat Analyser",
+    "tagline": "Automated Cyber Threat Intelligence ingestion and analysis with MITRE ATT&CK mapping.",
+    "description": "Architected a backend infrastructure using Python and Flask to automate the ingestion and normalization of unstructured Cyber Threat Intelligence reports, utilizing LLM to extract threat entities and map them to standardized MITRE ATT&CK tactics. Developed a LLM powered cybersecurity chatbot to provide context-aware analysis and mitigation recommendations.",
+    "role": "Solo Developer",
+    "year": 2025,
+    "keywords": [
+      "Python",
+      "Flask",
+      "LLM",
+      "MITRE ATT&CK",
+      "Cybersecurity",
+      "Automated CTI",
+      "Chatbot"
+    ],
+    "link": "#"
+  },
+  {
+    "name": "Image Recognition Chatbot",
+    "tagline": "On-device AI chatbot with BLIP-powered image recognition for electronics domain.",
+    "description": "Engineered an interactive chatbot powered by local, on-device AI, leveraging Ollama's Llama 3.1:7b for intelligent text generation and Salesforce's BLIP model to enhance domain-specific image recognition capabilities within the electronics field, achieving 70% accuracy.",
+    "role": "Solo Developer",
+    "year": 2025,
+    "keywords": [
+      "Ollama",
+      "Llama 3.1:7b",
+      "BLIP",
+      "Salesforce",
+      "On-device AI",
+      "Python",
+      "70% accuracy"
+    ],
+    "link": "#"
+  }
+]

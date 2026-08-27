@@ -3,6 +3,16 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Send } from "lucide-react";
 import { generateReply, quickPrompts } from "../mock";
 import { ChatCards } from "./ChatCards";
+import HireForm from "./HireForm";
+
+const SMART_PROMPTS = {
+  skills: "skills",
+  achievements: "achievements",
+  experience: "experience",
+  projects: "projects",
+};
+
+const HIRE_KEYWORDS = ["hire", "contact", "contact you", "how to hire", "how do i contact you"];
 
 function TypingIndicator() {
   return (
@@ -14,23 +24,21 @@ function TypingIndicator() {
   );
 }
 
-// AI bubble — left aligned, with a sharp pointy corner at bottom-left (WhatsApp-style).
 function AiBubble({ children }) {
   return (
-    <div className="relative max-w-[92%]">
-      <div className="px-4 py-3 rounded-2xl rounded-bl-none bg-white/80 dark:bg-neutral-900/70 backdrop-blur border border-neutral-200/80 dark:border-neutral-700/80 text-neutral-800 dark:text-neutral-100 text-[14.5px] leading-relaxed whitespace-pre-line shadow-[0_8px_24px_-12px_rgba(0,0,0,0.22)]">
+    <div className="relative max-w-[92%] lg:max-w-[92%]">
+      <div className="px-4 py-3 rounded-2xl rounded-bl-none bg-white/80 dark:bg-neutral-900/70 backdrop-blur border border-neutral-200/80 dark:border-neutral-700/80 text-neutral-800 dark:text-neutral-100 text-[14px] lg:text-[14.5px] leading-relaxed whitespace-pre-line shadow-[0_8px_24px_-12px_rgba(0,0,0,0.22)]">
         {children}
       </div>
     </div>
   );
 }
 
-// User bubble — right aligned, with a sharp pointy corner at bottom-right.
 function UserBubble({ children }) {
   return (
-    <div className="relative max-w-[85%]">
+    <div className="relative max-w-[85%] lg:max-w-[85%]">
       <div
-        className="px-4 py-3 rounded-2xl rounded-br-none text-white text-[14.5px] leading-snug shadow-[0_8px_24px_-12px_rgba(37,99,235,0.55)]"
+        className="px-4 py-3 rounded-2xl rounded-br-none text-white text-[14px] lg:text-[14.5px] leading-snug shadow-[0_8px_24px_-12px_rgba(37,99,235,0.55)]"
         style={{
           background: "linear-gradient(135deg, #2563eb 0%, #1d4ed8 60%, #1e3a8a 100%)",
         }}
@@ -41,26 +49,64 @@ function UserBubble({ children }) {
   );
 }
 
-export default function ChatArea({ active, onActivate, big = false }) {
+export default function ChatArea({ active, onActivate, onPromptAction, big = false }) {
   const [input, setInput] = useState("");
-  const [messages, setMessages] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [currentAi, setCurrentAi] = useState(null);
   const [isTyping, setIsTyping] = useState(false);
+  const [showHireForm, setShowHireForm] = useState(false);
   const inputRef = useRef(null);
+
+  const checkSmartPrompt = (text) => {
+    const lower = text.toLowerCase().trim();
+
+    if (HIRE_KEYWORDS.some((k) => lower.includes(k))) {
+      setShowHireForm(true);
+      setCurrentAi(null);
+      return true;
+    }
+
+    for (const [keyword, action] of Object.entries(SMART_PROMPTS)) {
+      if (lower === keyword) {
+        setShowHireForm(false);
+        setCurrentAi(null);
+        onPromptAction?.(action);
+        return true;
+      }
+    }
+
+    return false;
+  };
 
   const handleSend = (textOverride) => {
     const text = (textOverride ?? input).trim();
     if (!text) return;
     if (!active) onActivate?.();
-    const userMsg = { id: Date.now(), role: "user", text };
-    setMessages((m) => [...m, userMsg]);
-    setInput("");
-    setIsTyping(true);
 
+    setCurrentUser({ id: Date.now(), text });
+    setCurrentAi(null);
+    setShowHireForm(false);
+    setInput("");
+
+    if (checkSmartPrompt(text)) return;
+
+    setIsTyping(true);
     setTimeout(() => {
       const reply = generateReply(text);
-      setMessages((m) => [...m, { id: Date.now() + 1, role: "ai", ...reply }]);
+      setCurrentAi({ id: Date.now() + 1, ...reply });
       setIsTyping(false);
     }, 650 + Math.random() * 400);
+  };
+
+  const handlePromptClick = (prompt) => {
+    if (prompt.id === "hire") {
+      if (!active) onActivate?.();
+      setCurrentUser({ id: Date.now(), text: prompt.label });
+      setCurrentAi(null);
+      setShowHireForm(true);
+      return;
+    }
+    handleSend(prompt.label);
   };
 
   const onKeyDown = (e) => {
@@ -70,16 +116,12 @@ export default function ChatArea({ active, onActivate, big = false }) {
     }
   };
 
-  const lastUser = [...messages].reverse().find((m) => m.role === "user");
-  const lastAi = [...messages].reverse().find((m) => m.role === "ai");
-
   const showSendButton = input.trim().length > 0;
   const promptsToShow = active ? quickPrompts.filter((p) => p.keep) : quickPrompts;
 
-  // Initial — heading + suggestions + input clustered in the middle.
   if (!active) {
     return (
-      <div className="flex flex-col h-full w-full items-center justify-center">
+      <div className="flex flex-col w-full items-center justify-center py-8 lg:py-12 px-2">
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -88,24 +130,24 @@ export default function ChatArea({ active, onActivate, big = false }) {
           <motion.h2
             layout
             className="font-display font-semibold text-center text-neutral-900 dark:text-neutral-50 leading-[1.05] tracking-tight"
-            style={{ fontSize: big ? "clamp(40px, 4.6vw, 64px)" : "clamp(30px, 3.4vw, 44px)" }}
+            style={{ fontSize: big ? "clamp(32px, 6vw, 56px)" : "clamp(28px, 5vw, 44px)" }}
           >
-            Talk to me here.
+            Talk to me here...
           </motion.h2>
           <motion.p
             layout
-            className="mt-3 max-w-md text-center text-neutral-600 dark:text-neutral-400 leading-relaxed"
-            style={{ fontSize: big ? "16px" : "14.5px" }}
+            className="mt-3 max-w-md text-center text-neutral-600 dark:text-neutral-400 leading-relaxed px-2"
+            style={{ fontSize: big ? "15px" : "14px" }}
           >
             This page is a conversation, not a résumé. Ask about my work, my
             stack, or how to hire me.
           </motion.p>
 
-          <div className="mt-7 flex flex-wrap gap-1.5 justify-center max-w-[520px]">
+          <div className="mt-6 flex flex-row flex-wrap gap-2 sm:gap-2.5 justify-center items-center w-full max-w-[520px]">
             {promptsToShow.map((p, i) => (
               <motion.button
                 key={p.id}
-                onClick={() => handleSend(p.label)}
+                onClick={() => handlePromptClick(p)}
                 initial={{ y: 6, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.1 + i * 0.04 }}
@@ -113,8 +155,8 @@ export default function ChatArea({ active, onActivate, big = false }) {
                 whileTap={{ scale: 0.97 }}
                 className={
                   p.highlight
-                    ? "text-[12.5px] px-3 py-1.5 rounded-full text-white font-medium shadow-[0_6px_18px_-6px_rgba(37,99,235,0.55)] transition-shadow hover:shadow-[0_8px_22px_-6px_rgba(37,99,235,0.75)]"
-                    : "text-[12.5px] px-3 py-1.5 rounded-full bg-white/70 dark:bg-neutral-900/60 backdrop-blur border border-neutral-200 dark:border-neutral-700 hover:border-neutral-900/40 dark:hover:border-neutral-300/40 hover:bg-white dark:hover:bg-neutral-900 text-neutral-700 dark:text-neutral-200 transition-colors"
+                    ? "text-[13px] lg:text-[13.5px] px-5 py-2.5 rounded-full text-white font-medium shadow-[0_6px_18px_-6px_rgba(37,99,235,0.55)] transition-shadow hover:shadow-[0_8px_22px_-6px_rgba(37,99,235,0.75)]"
+                    : "text-[13px] lg:text-[13.5px] px-5 py-2.5 rounded-full bg-white/70 dark:bg-neutral-900/60 backdrop-blur border border-neutral-200 dark:border-neutral-700 hover:border-neutral-900/40 dark:hover:border-neutral-300/40 hover:bg-white dark:hover:bg-neutral-900 text-neutral-700 dark:text-neutral-200 transition-colors"
                 }
                 style={
                   p.highlight
@@ -138,7 +180,7 @@ export default function ChatArea({ active, onActivate, big = false }) {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={onKeyDown}
                 placeholder="Type a message to start the conversation…"
-                className="flex-1 bg-transparent outline-none px-5 py-3 text-[14px] text-neutral-900 dark:text-neutral-50 placeholder:text-neutral-400"
+                className="flex-1 bg-transparent outline-none px-4 lg:px-5 py-3 text-[13px] lg:text-[14px] text-neutral-900 dark:text-neutral-50 placeholder:text-neutral-400"
               />
               <AnimatePresence>
                 {showSendButton && (
@@ -166,49 +208,55 @@ export default function ChatArea({ active, onActivate, big = false }) {
     );
   }
 
-  // Active — fills the right column vertically; user Q on top, AI response below, suggestions+input at bottom.
   return (
-    <div className="flex flex-col h-full w-full">
-      {/* Conversation surface — flex-grows to fill column */}
-      <div className="flex-1 min-h-0 flex flex-col gap-4 pt-2">
-        {lastUser && (
+    <div className="flex flex-col w-full h-auto min-h-[380px] lg:h-[550px] lg:min-h-0 pt-6 lg:pt-8 pb-0">
+      <div className="flex-1 min-h-0 flex flex-col gap-3 lg:gap-4 pt-2 overflow-y-auto thin-scroll pr-1">
+        {currentUser && (
           <motion.div
-            key={lastUser.id}
+            key={currentUser.id}
             initial={{ y: -8, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             className="flex justify-end"
           >
-            <UserBubble>{lastUser.text}</UserBubble>
+            <UserBubble>{currentUser.text}</UserBubble>
           </motion.div>
         )}
 
-        <div className="flex-1 min-h-0 flex flex-col">
+        <div className="flex flex-col">
           {isTyping ? (
             <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex">
               <TypingIndicator />
             </motion.div>
-          ) : lastAi ? (
+          ) : showHireForm ? (
             <motion.div
-              key={lastAi.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-3"
+            >
+              <HireForm />
+            </motion.div>
+          ) : currentAi ? (
+            <motion.div
+              key={currentAi.id}
               initial={{ y: 10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               className="flex flex-col"
             >
-              <AiBubble>{lastAi.text}</AiBubble>
-              <ChatCards reply={lastAi} />
+              <AiBubble>{currentAi.text}</AiBubble>
+              <ChatCards reply={currentAi} />
             </motion.div>
           ) : null}
         </div>
       </div>
 
-      {/* Suggestions */}
-      <div className="mt-4 flex flex-wrap gap-1.5 justify-center lg:justify-start">
+      <div className="mt-auto flex flex-col gap-2 lg:gap-3 pt-2 lg:pt-3">
+        <div className="flex flex-row flex-nowrap gap-1.5 lg:gap-2 justify-center items-center overflow-x-auto">
         <AnimatePresence mode="popLayout">
           {promptsToShow.map((p, i) => (
             <motion.button
               key={p.id}
               layout
-              onClick={() => handleSend(p.label)}
+              onClick={() => handlePromptClick(p)}
               initial={{ y: 6, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: -4, opacity: 0 }}
@@ -217,8 +265,8 @@ export default function ChatArea({ active, onActivate, big = false }) {
               whileTap={{ scale: 0.97 }}
               className={
                 p.highlight
-                  ? "text-[12.5px] px-3 py-1.5 rounded-full text-white font-medium shadow-[0_6px_18px_-6px_rgba(37,99,235,0.55)] transition-shadow hover:shadow-[0_8px_22px_-6px_rgba(37,99,235,0.75)]"
-                  : "text-[12.5px] px-3 py-1.5 rounded-full bg-white/70 dark:bg-neutral-900/60 backdrop-blur border border-neutral-200 dark:border-neutral-700 hover:border-neutral-900/40 dark:hover:border-neutral-300/40 hover:bg-white dark:hover:bg-neutral-900 text-neutral-700 dark:text-neutral-200 transition-colors"
+                  ? "text-[12px] lg:text-[12.5px] px-4 py-2 rounded-full text-white font-medium shadow-[0_6px_18px_-6px_rgba(37,99,235,0.55)] transition-shadow hover:shadow-[0_8px_22px_-6px_rgba(37,99,235,0.75)] whitespace-nowrap"
+                  : "text-[12px] lg:text-[12.5px] px-4 py-2 rounded-full bg-white/70 dark:bg-neutral-900/60 backdrop-blur border border-neutral-200 dark:border-neutral-700 hover:border-neutral-900/40 dark:hover:border-neutral-300/40 hover:bg-white dark:hover:bg-neutral-900 text-neutral-700 dark:text-neutral-200 transition-colors whitespace-nowrap"
               }
               style={
                 p.highlight
@@ -233,18 +281,17 @@ export default function ChatArea({ active, onActivate, big = false }) {
             </motion.button>
           ))}
         </AnimatePresence>
-      </div>
+        </div>
 
-      {/* Input */}
-      <div className="mt-3">
-        <div className="relative flex items-center rounded-full bg-white/85 dark:bg-neutral-900/70 backdrop-blur border border-neutral-200 dark:border-neutral-700 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.18)] focus-within:border-blue-700/50 dark:focus-within:border-blue-500/50 focus-within:shadow-[0_10px_36px_-10px_rgba(37,99,235,0.35)] transition-all">
+        <div>
+          <div className="relative flex items-center rounded-full bg-white/85 dark:bg-neutral-900/70 backdrop-blur border border-neutral-200 dark:border-neutral-700 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.18)] focus-within:border-blue-700/50 dark:focus-within:border-blue-500/50 focus-within:shadow-[0_10px_36px_-10px_rgba(37,99,235,0.35)] transition-all">
           <input
             ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={onKeyDown}
             placeholder="Continue the conversation…"
-            className="flex-1 bg-transparent outline-none px-5 py-3 text-[14px] text-neutral-900 dark:text-neutral-50 placeholder:text-neutral-400"
+            className="flex-1 bg-transparent outline-none px-4 lg:px-5 py-3 text-[13px] lg:text-[14px] text-neutral-900 dark:text-neutral-50 placeholder:text-neutral-400"
           />
           <AnimatePresence>
             {showSendButton && (
@@ -265,6 +312,7 @@ export default function ChatArea({ active, onActivate, big = false }) {
               </motion.button>
             )}
           </AnimatePresence>
+          </div>
         </div>
       </div>
     </div>
