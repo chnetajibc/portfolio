@@ -9,6 +9,7 @@ import {
   MailIcon,
   LeetcodeIcon,
   DiscordIcon,
+  InstagramIcon,
 } from "./BrandIcons";
 
 const iconMap = {
@@ -19,6 +20,7 @@ const iconMap = {
   mail: MailIcon,
   leetcode: LeetcodeIcon,
   discord: DiscordIcon,
+  instagram: InstagramIcon,
 };
 
 export default function SocialLinks({ size = "md" }) {

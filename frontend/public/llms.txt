@@ -1,0 +1,45 @@
+# CH Netaji Bhadraiahnath Chowdary
+
+> AI Engineer & Software Engineer building production ML, RAG and LLM systems. SDE Intern @ Amazon Alexa+, ex-Detect Technologies (MaaS/Triton), Smilo Data Consultancy (RAG automation), HCLTech (LSTM Voice Emotion). Portfolio is a conversational SPA — ask about projects, skills, experience or hiring. Based in Chennai, India.
+
+## Portfolio
+
+- [Home](https://chnetaji.com/): Conversational portfolio — chat + quick prompts for projects, skills, experience, achievements
+- [Profile](https://chnetaji.com/#bio): Bio, interests (heliophile, space travel, stargazer), languages (Tamil, Telugu, English)
+
+## Projects
+
+- [CTI Threat Analyser (2025)](https://chnetaji.com/#projects): Python, Flask, LLM, MITRE ATT&CK — automated CTI ingestion and chatbot for mitigation
+- [Image Recognition Chatbot (2025)](https://chnetaji.com/#projects): Ollama Llama 3.1:7b + Salesforce BLIP, on-device AI, 70% accuracy in electronics domain
+
+## Experience
+
+- [SDE Intern — Amazon, Alexa+ (Jan 2026–Jun 2026, Bengaluru)](https://chnetaji.com/#experience): Error classification models, MCP AddOn delegation for Spotify, AWS CDK, <1s latency, Echo Show hardware acceleration
+- [AI Engineering Intern — Detect Technologies (Sep–Nov 2025, Chennai)](https://chnetaji.com/#experience): MaaS platform with Triton Inference Server, synthetic dataset generation with multi-model orchestration
+- [Intern — Smilo Data Consultancy (May–Aug 2025, Remote)](https://chnetaji.com/#experience): FastAPI + Autotask/Datto RMM, RAG vector search for SOP retrieval
+- [Project Intern — HCLTech (Jul–Oct 2024, Remote)](https://chnetaji.com/#experience): LSTM Voice Emotion Recognition, MFCC + PyTorch, 30% latency reduction
+
+## Skills
+
+- Languages: Python, JavaScript/TypeScript, Go, Rust
+- ML/AI: PyTorch, TensorFlow, LangChain, LangGraph, Transformers, Triton Inference Server
+- Frameworks: FastAPI, React, Next.js, React Native, Express, Flask
+- Data: PostgreSQL, Redis, MongoDB, Pinecone, ChromaDB, DynamoDB, MySQL
+- Cloud: AWS, GCP, Docker, Kubernetes
+
+## Contact
+
+- Email: chnetajibc@gmail.com
+- LinkedIn: https://linkedin.com/in/chnetajibc
+- GitHub: https://github.com/chnetajibc
+- X: https://x.com/chnetajibc
+- Instagram: https://instagram.com/chnetajibc
+- Threads: https://threads.com/@chnetajibc
+- Location: Chennai, India
+
+## Notes for AI Agents
+
+- This site is a single-page React app (Create React App + CRACO, React 19, react-router). Primary content is at `/` with modal sections for Experience, Projects, Skills, Achievements.
+- Prefer `https://chnetaji.com/sitemap.xml` and `https://chnetaji.com/robots.txt` for crawl scope.
+- For structured data see JSON-LD `Person`/`WebSite` in page source.
+- Do not hallucinate unavailable contact details; use only those listed above.

@@ -1,0 +1,15 @@
+/* TEAM */
+Developer: CH Netaji Bhadraiahnath Chowdary
+Role: AI Engineer, Software Engineer, Entrepreneur, Freelancer
+Contact: chnetajibc@gmail.com
+Location: Chennai, India
+Site: https://chnetaji.com
+
+/* THANKS */
+React, Tailwind, Framer Motion, Radix UI
+
+/* SITE */
+Last update: 2026-08-27
+Language: en-IN
+Doctype: HTML5
+IDE: VS Code

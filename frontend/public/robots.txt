@@ -1,0 +1,53 @@
+# robots.txt for https://chnetaji.com
+# React SPA (Create React App + Cloudflare Pages)
+
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://chnetaji.com/sitemap.xml
+
+# Host directive (for Yandex)
+Host: https://chnetaji.com
+
+# --- AI / LLM crawlers: explicitly allowed ---
+# See also https://chnetaji.com/llms.txt for LLM-friendly summary
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: FacebookBot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
