@@ -6,23 +6,25 @@ Live: **https://chnetaji.com** (Cloudflare Pages)
 
 ## Stack
 
-- **Frontend:** React 19, React Router 7, CRACO (CRA), Tailwind CSS, Framer Motion, Radix UI, Lucide
-- **Build:** `react-scripts 5` + `craco`, Node 20, Yarn 1.22
-- **Hosting:** Cloudflare Pages — `frontend/build` → `chnetaji.com`
-- **SEO:** static `index.html` + JSON-LD `Person/WebSite`, `og-image.png` (1200×630), `sitemap.xml`, `robots.txt`, `llms.txt`, `humans.txt`
+- **Frontend:** React 19, React Router 7, **Vite 6** (`@vitejs/plugin-react`), Tailwind CSS, Framer Motion, Radix UI, Lucide
+- **Build:** `vite` + `vitest`/`jsdom`, Node 20, Yarn 1.22 (migrated from CRA/CRACO)
+- **Hosting:** Cloudflare Pages — `frontend/build` → `chnetaji.com` (Vite `outDir: build` to keep Pages compat; preset `React (Vite)` with output `build`)
+- **SEO:** static `index.html` (Vite root) + JSON-LD `Person/WebSite`, `og-image.png` (1200×630), `sitemap.xml`, `robots.txt`, `llms.txt`, `humans.txt`
 
 ## Project Structure
 
 ```
 frontend/
+  index.html            # Vite entry (canonical, OG, Twitter, JSON-LD) → build/index.html
+  vite.config.js        # @vitejs/plugin-react, alias @ → src, outDir: build, vitest
   public/
-    index.html          # canonical, OG, Twitter, JSON-LD
     favicon.svg/ico/png # NBC avatar (matches Header)
     og-image.png        # 1200×630 dark aurora + NBC
     _redirects          # /* /index.html 200 (SPA)
     _headers            # security + cache
     robots.txt / sitemap.xml / llms.txt
   src/
+    index.jsx / App.jsx # entry (was .js, now .jsx for Vite)
     components/         # Avatar (NBC), Header, SocialLinks, ChatArea...
     data/               # profile.json, socials.json, experience, projects, skills
     pages/Portfolio.jsx # main route /
@@ -33,19 +35,20 @@ frontend/
 ```bash
 cd frontend
 yarn install
-yarn start          # http://localhost:3000
-yarn test           # 4 suites / 9 tests
-yarn build          # production → build/
+yarn start          # vite --port 3000 → http://localhost:3000 (alias: yarn dev)
+yarn test           # vitest run — 4 suites / 9 tests
+yarn build          # vite build → build/ (535 kB JS, 70 kB CSS)
+yarn preview        # vite preview --port 3000
 ```
 
 ## Deployment — Cloudflare Pages
 
 **Option A — Dashboard (recommended):**
 1. Cloudflare → Pages → Create project → Connect `chnetajibc/portfolio`
-2. Framework preset: `Create React App`
+2. Framework preset: **`React (Vite)`** (was `Create React App` pre-migration)
 3. Root directory: `frontend`
-4. Build command: `yarn build`
-5. Output directory: `build`
+4. Build command: `yarn build` (`vite build`)
+5. Output directory: `build` (Vite `outDir: build` — keep Pages compat; default Vite is `dist`)
 6. Add custom domain `chnetaji.com` (+ `www`) → DNS auto-proxied
 
 **Option B — GitHub Action:**
@@ -70,6 +73,6 @@ SPA fallback handled by `public/_redirects`. Caching/security via `public/_heade
 
 NBC logo mirrors `src/components/Avatar.jsx` (black circle, orbital lines, `NBC` text). Sources: `public/favicon.svg` (vector), `favicon-16/32.png`, `apple-touch-icon.png` (180), `android-chrome-192/512.png` (PWA via `site.webmanifest`).
 
-## Health Check (dev only)
+## Health Check (dev only — legacy)
 
-`frontend/plugins/health-check/` — `WebpackHealthPlugin` + `/health*` endpoints — enabled only if `ENABLE_HEALTH_CHECK=true` (`frontend/craco.config.js:15`). No effect in production.
+`frontend/plugins/health-check/` — `WebpackHealthPlugin` — CRA/CRACO only, not used with Vite (`vite.config.js` has no health plugin). Kept for reference; remove if not needed.
