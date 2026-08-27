@@ -13,5 +13,6 @@ yarn-debug.log*
 yarn-error.log*
 
 # Build
+frontend/dist/
 frontend/build/
 frontend/node_modules/

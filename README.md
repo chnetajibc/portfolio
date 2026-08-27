@@ -8,15 +8,16 @@ Live: **https://chnetaji.com** (Cloudflare Pages)
 
 - **Frontend:** React 19, React Router 7, **Vite 6** (`@vitejs/plugin-react`), Tailwind CSS, Framer Motion, Radix UI, Lucide
 - **Build:** `vite` + `vitest`/`jsdom`, Node 20, Yarn 1.22 (migrated from CRA/CRACO)
-- **Hosting:** Cloudflare Pages — `frontend/build` → `chnetaji.com` (Vite `outDir: build` to keep Pages compat; preset `React (Vite)` with output `build`)
+- **Hosting:** Cloudflare Pages — `frontend/dist` → `chnetaji.com` (Vite `outDir: dist`, modern default; preset `React (Vite)`)
 - **SEO:** static `index.html` (Vite root) + JSON-LD `Person/WebSite`, `og-image.png` (1200×630), `sitemap.xml`, `robots.txt`, `llms.txt`, `humans.txt`
 
 ## Project Structure
 
 ```
 frontend/
-  index.html            # Vite entry (canonical, OG, Twitter, JSON-LD) → build/index.html
-  vite.config.js        # @vitejs/plugin-react, alias @ → src, outDir: build, vitest
+  index.html            # Vite entry (canonical, OG, Twitter, JSON-LD) → dist/index.html
+  vite.config.js        # @vitejs/plugin-react, alias @ → src, outDir: dist, base: /, vitest
+  eslint.config.js      # flat config (eslint 9 + react-hooks/jsx-a11y)
   public/
     favicon.svg/ico/png # NBC avatar (matches Header)
     og-image.png        # 1200×630 dark aurora + NBC
@@ -37,24 +38,24 @@ cd frontend
 yarn install
 yarn start          # vite --port 3000 → http://localhost:3000 (alias: yarn dev)
 yarn test           # vitest run — 4 suites / 9 tests
-yarn build          # vite build → build/ (535 kB JS, 70 kB CSS)
-yarn preview        # vite preview --port 3000
+yarn build          # vite build → dist/ (535 kB JS → ~170 kB gzip)
+yarn preview        # vite preview --port 3000 → dist
 ```
 
 ## Deployment — Cloudflare Pages
 
 **Option A — Dashboard (recommended):**
 1. Cloudflare → Pages → Create project → Connect `chnetajibc/portfolio`
-2. Framework preset: **`React (Vite)`** (was `Create React App` pre-migration)
+2. Framework preset: **`React (Vite)`**
 3. Root directory: `frontend`
 4. Build command: `yarn build` (`vite build`)
-5. Output directory: `build` (Vite `outDir: build` — keep Pages compat; default Vite is `dist`)
+5. Output directory: `dist` (Vite modern default)
 6. Add custom domain `chnetaji.com` (+ `www`) → DNS auto-proxied
 
 **Option B — GitHub Action:**
 - Workflow `.github/workflows/deploy.yml` uses `cloudflare/pages-action@v1`
 - Requires secrets: `CLOUDFLARE_API_TOKEN` (Pages Edit), `CLOUDFLARE_ACCOUNT_ID`
-- Project name: `chnetaji-portfolio`, directory: `frontend/build`
+- Project name: `chnetaji-portfolio`, directory: `frontend/dist`
 
 SPA fallback handled by `public/_redirects`. Caching/security via `public/_headers`.
 
