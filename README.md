@@ -7,7 +7,7 @@ Live: **https://chnetaji.com** (Cloudflare Pages)
 ## Stack
 
 - **Frontend:** React 19, React Router 7, **Vite 6** (`@vitejs/plugin-react`), Tailwind CSS, Framer Motion, Radix UI, Lucide
-- **Build:** `vite` + `vitest`/`jsdom`, Node 20, Yarn 1.22 (migrated from CRA/CRACO)
+- **Build:** `vite` + `vitest`/`jsdom`, Node 20, npm (migrated from CRA/CRACO/Yarn)
 - **Hosting:** Cloudflare Pages — `frontend/dist` → `chnetaji.com` (Vite `outDir: dist`, modern default; preset `React (Vite)`)
 - **SEO:** static `index.html` (Vite root) + JSON-LD `Person/WebSite`, `og-image.png` (1200×630), `sitemap.xml`, `robots.txt`, `llms.txt`, `humans.txt`
 
@@ -35,29 +35,23 @@ frontend/
 
 ```bash
 cd frontend
-yarn install
-yarn start          # vite --port 3000 → http://localhost:3000 (alias: yarn dev)
-yarn test           # vitest run — 4 suites / 9 tests
-yarn build          # vite build → dist/ (535 kB JS → ~170 kB gzip)
-yarn preview        # vite preview --port 3000 → dist
+npm install
+npm run dev          # vite --port 3000 → http://localhost:3000 (alias: npm start)
+npm test             # vitest run — 4 suites / 9 tests
+npm run build        # vite build → dist/ (535 kB JS → ~170 kB gzip)
+npm run preview      # vite preview --port 3000 → dist
 ```
 
-## Deployment — Cloudflare Pages
+## Deployment — Cloudflare Pages (Git direct, no GitHub Action)
 
-**Option A — Dashboard (recommended):**
 1. Cloudflare → Pages → Create project → Connect `chnetajibc/portfolio`
 2. Framework preset: **`React (Vite)`**
 3. Root directory: `frontend`
-4. Build command: `yarn build` (`vite build`)
+4. Build command: `npm run build` (`vite build`)
 5. Output directory: `dist` (Vite modern default)
 6. Add custom domain `chnetaji.com` (+ `www`) → DNS auto-proxied
 
-**Option B — GitHub Action:**
-- Workflow `.github/workflows/deploy.yml` uses `cloudflare/pages-action@v1`
-- Requires secrets: `CLOUDFLARE_API_TOKEN` (Pages Edit), `CLOUDFLARE_ACCOUNT_ID`
-- Project name: `chnetaji-portfolio`, directory: `frontend/dist`
-
-SPA fallback handled by `public/_redirects`. Caching/security via `public/_headers`.
+> No `.github/workflows` — Cloudflare builds directly from `main` on push. SPA fallback handled by `public/_redirects`. Caching/security via `public/_headers`.
 
 ## SEO / AI
 
@@ -74,6 +68,7 @@ SPA fallback handled by `public/_redirects`. Caching/security via `public/_heade
 
 NBC logo mirrors `src/components/Avatar.jsx` (black circle, orbital lines, `NBC` text). Sources: `public/favicon.svg` (vector), `favicon-16/32.png`, `apple-touch-icon.png` (180), `android-chrome-192/512.png` (PWA via `site.webmanifest`).
 
-## Health Check (dev only — legacy)
+## Notes
 
-`frontend/plugins/health-check/` — `WebpackHealthPlugin` — CRA/CRACO only, not used with Vite (`vite.config.js` has no health plugin). Kept for reference; remove if not needed.
+- `frontend/plugins/health-check/` removed — was CRA/CRACO webpack-only, not needed for Vite.
+- `packageManager` is no longer pinned to Yarn; use `npm` (or `pnpm`/`bun`) — Cloudflare auto-detects `package-lock.json`/`yarn.lock`/`pnpm-lock.yaml`.
