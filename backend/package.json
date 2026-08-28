@@ -17,5 +17,9 @@
     "typescript": "^5.5.0",
     "vitest": "^3.1.0",
     "wrangler": "^3.100.0"
+  },
+  "dependencies": {
+    "ai": "^7.0.83",
+    "workers-ai-provider": "^4.0.0"
   }
 }

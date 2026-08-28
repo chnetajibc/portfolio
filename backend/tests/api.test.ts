@@ -213,18 +213,36 @@ describe("rate limit behavior - contact", () => {
   });
 });
 describe("AI success normalization", () => {
-  it("returns data.message via non-streaming", async () => {
+  it("returns streaming SSE via non-streaming fallback", async () => {
     const env = createMockEnv();
     (env.AI.run as any) = vi.fn(async () => ({ response: "AI reply" }));
     const res = await handleRequest(req("https://api.test/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: "hello" }) }), env);
     expect(res.status).toBe(200);
-    const body: any = await res.json();
-    expect(body.data.message).toBe("AI reply");
-    expect(body.meta.requestId).toBeDefined();
-    expect(res.headers.get("Cache-Control")).toBe("no-store");
-    expect(res.headers.get("X-Content-Type-Options")).toBe("nosniff");
-    expect((env.AI.run as any).mock.calls[0][1].stream).toBeUndefined();
+    expect(res.headers.get("content-type")).toContain("text/event-stream");
+    const text = await res.text();
+    expect(text).toContain("AI reply");
+    expect(res.headers.get("X-Request-ID")).toBeDefined();
+    expect((env.AI.run as any).mock.calls[0][1].stream).toBe(true);
     expect((env.AI.run as any).mock.calls[0][1].max_tokens).toBe(180);
+  });
+  it("returns streaming SSE with proper chunks", async () => {
+    const env = createMockEnv();
+    const stream = new ReadableStream({
+      start(controller) {
+        const enc = new TextEncoder();
+        controller.enqueue(enc.encode(`data: ${JSON.stringify({ response: "Hello " })}\n\n`));
+        controller.enqueue(enc.encode(`data: ${JSON.stringify({ response: "stream" })}\n\n`));
+        controller.enqueue(enc.encode(`data: [DONE]\n\n`));
+        controller.close();
+      },
+    });
+    (env.AI.run as any) = vi.fn(async () => stream);
+    const res = await handleRequest(req("https://api.test/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: "hello" }) }), env);
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toContain("text/event-stream");
+    const text = await res.text();
+    expect(text).toContain("Hello ");
+    expect(text).toContain("stream");
   });
 });
 describe("AI provider failure", () => {
@@ -380,12 +398,30 @@ describe("CORS rejection", () => {
 describe("request ID propagation", () => {
   it("returns X-Request-ID and echoes provided", async () => {
     const env = createMockEnv();
+    const stream = new ReadableStream({
+      start(controller) {
+        const enc = new TextEncoder();
+        controller.enqueue(enc.encode(`data: ${JSON.stringify({ response: "ok" })}\n\n`));
+        controller.enqueue(enc.encode(`data: [DONE]\n\n`));
+        controller.close();
+      },
+    });
+    (env.AI.run as any) = vi.fn(async () => stream);
     const res = await handleRequest(req("https://api.test/api/chat", { method: "POST", headers: { "Content-Type": "application/json", "X-Request-ID": "test-123" }, body: JSON.stringify({ message: "hello" }) }), env);
     expect(res.headers.get("X-Request-ID")).toBe("test-123");
-    expect((await res.json() as any).meta.requestId).toBe("test-123");
+    expect(res.headers.get("content-type")).toContain("text/event-stream");
   });
   it("generates ID when not provided", async () => {
     const env = createMockEnv();
+    const stream = new ReadableStream({
+      start(controller) {
+        const enc = new TextEncoder();
+        controller.enqueue(enc.encode(`data: ${JSON.stringify({ response: "ok" })}\n\n`));
+        controller.enqueue(enc.encode(`data: [DONE]\n\n`));
+        controller.close();
+      },
+    });
+    (env.AI.run as any) = vi.fn(async () => stream);
     const res = await handleRequest(req("https://api.test/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: "hello" }) }), env);
     expect(res.headers.get("X-Request-ID")).toMatch(/^[a-z0-9-]{36}$/i);
   });

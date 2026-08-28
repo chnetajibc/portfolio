@@ -1,7 +1,7 @@
 // API client for Cloudflare Worker backend
 import { createParser } from "eventsource-parser";
 
-const API_BASE = "";
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
 
 async function request(path, options = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
@@ -69,7 +69,7 @@ export async function postChat(message, opts = {}) {
 
   const { onChunk, signal } = opts;
 
-  const res = await fetch("/api/chat", {
+  const res = await fetch(`${API_BASE}/api/chat`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

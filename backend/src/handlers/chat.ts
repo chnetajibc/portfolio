@@ -1,9 +1,11 @@
 import type { Env } from "../config.js";
 import { validateChatRequest } from "../lib/validation.js";
 import { checkRateLimit } from "../lib/rate-limit.js";
-import { generateChatResponse } from "../lib/ai.js";
-import { errorResponse, successResponse } from "../lib/response.js";
-import { logError } from "../lib/logging.js";
+import { errorResponse } from "../lib/response.js";
+import { logError, logAi } from "../lib/logging.js";
+import { AI_CONFIG } from "../config.js";
+import { SYSTEM_INSTRUCTIONS, GUARDRAILS } from "../ai/system-instructions.js";
+import { PORTFOLIO_CONTEXT } from "../ai/portfolio-context.js";
 
 export async function handleChat(
   request: Request,
@@ -30,17 +32,60 @@ export async function handleChat(
     });
   }
 
-  // 3. AI inference — model server-side, no client control, non-streaming
-  const aiResult = await generateChatResponse(env, message, requestId);
-
-  if (!aiResult.success) {
-    if (aiResult.errorCode === "DAILY_LIMIT_REACHED") {
+  // 3. AI inference — streaming via official Workers AI stream:true, piped directly
+  const model = env.AI_MODEL || "@cf/meta/llama-3.2-3b-instruct";
+  const messages = [
+    { role: "system", content: SYSTEM_INSTRUCTIONS },
+    { role: "system", content: PORTFOLIO_CONTEXT },
+    { role: "system", content: GUARDRAILS },
+    { role: "user", content: message },
+  ];
+  const start = Date.now();
+  try {
+    const stream = (await env.AI.run(model as never, {
+      messages,
+      max_tokens: AI_CONFIG.MAX_TOKENS,
+      temperature: AI_CONFIG.TEMPERATURE,
+      stream: true,
+    } as never)) as unknown as ReadableStream;
+    if (stream && typeof (stream as unknown as { getReader?: unknown }).getReader === "function") {
+      logAi({ requestId, model, durationMs: Date.now() - start, success: true });
+      const headers = new Headers();
+      headers.set("Content-Type", "text/event-stream; charset=utf-8");
+      headers.set("Cache-Control", "no-cache");
+      headers.set("X-Request-ID", requestId);
+      headers.set("Vary", "Origin");
+      if (cors) for (const [k, v] of Object.entries(cors)) headers.set(k, v);
+      return new Response(stream as unknown as BodyInit, { headers });
+    }
+    const text = (stream as unknown as { response?: string })?.response ?? "AI response";
+    const sseStream = new ReadableStream({
+      start(controller) {
+        const enc = new TextEncoder();
+        controller.enqueue(enc.encode(`data: ${JSON.stringify({ response: String(text) })}\n\n`));
+        controller.enqueue(enc.encode(`data: [DONE]\n\n`));
+        controller.close();
+      },
+    });
+    logAi({ requestId, model, durationMs: Date.now() - start, success: true });
+    const headers = new Headers();
+    headers.set("Content-Type", "text/event-stream; charset=utf-8");
+    headers.set("Cache-Control", "no-cache");
+    headers.set("X-Request-ID", requestId);
+    headers.set("Vary", "Origin");
+    if (cors) for (const [k, v] of Object.entries(cors)) headers.set(k, v);
+    return new Response(sseStream as unknown as BodyInit, { headers });
+  } catch (e: unknown) {
+    const err = e as { message?: string; status?: number };
+    const msg = String(err?.message || "");
+    const lower = msg.toLowerCase();
+    const isDailyLimit = msg.includes("3036") || lower.includes("account limited") || (err?.status === 429 && lower.includes("account limited"));
+    if (isDailyLimit) {
+      logAi({ requestId, model, durationMs: Date.now() - start, success: false, errorCode: "DAILY_LIMIT_REACHED" });
       return errorResponse(429, "Daily limit reached", requestId, { corsHeaders: cors });
     }
-    logError({ requestId, route: "/api/chat", errorCode: aiResult.errorCode || "AI_UNAVAILABLE", status: 500 });
+    logAi({ requestId, model, durationMs: Date.now() - start, success: false, errorCode: "AI_UNAVAILABLE" });
+    logError({ requestId, route: "/api/chat", errorCode: "AI_UNAVAILABLE", status: 500 });
     return errorResponse(500, "Internal server error", requestId, { corsHeaders: cors });
   }
-
-  const text = aiResult.message!;
-  return successResponse({ message: text }, requestId, cors);
 }
