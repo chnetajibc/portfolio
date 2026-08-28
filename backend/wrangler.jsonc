@@ -6,7 +6,12 @@
   "observability": { "enabled": true },
   "ai": { "binding": "AI" },
   "ratelimits": [
-    { "name": "CHAT_RATE_LIMIT", "namespace_id": "1", "simple": { "limit": 5, "period": 60 } }
+    { "name": "CHAT_RATE_LIMIT", "namespace_id": "1", "simple": { "limit": 5, "period": 60 } },
+    { "name": "CHAT_RATE_LIMIT_HOUR", "namespace_id": "2", "simple": { "limit": 20, "period": 60 } },
+    { "name": "CHAT_RATE_LIMIT_DAY", "namespace_id": "3", "simple": { "limit": 40, "period": 60 } },
+    { "name": "CONTACT_RATE_LIMIT", "namespace_id": "4", "simple": { "limit": 5, "period": 60 } },
+    { "name": "CONTACT_RATE_LIMIT_HOUR", "namespace_id": "5", "simple": { "limit": 20, "period": 60 } },
+    { "name": "CONTACT_RATE_LIMIT_DAY", "namespace_id": "6", "simple": { "limit": 40, "period": 60 } }
   ],
   "vars": {
     "ALLOWED_ORIGIN": "https://chnetaji.com",

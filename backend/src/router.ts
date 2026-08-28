@@ -31,15 +31,15 @@ export async function handleRequest(request: Request, env: Env): Promise<Respons
 
   try {
     if ((pathname === "/api/chat" || pathname === "/chat") && method === "POST") {
-      route = pathname;
+      route = "/api/chat";
       response = await handleChat(request, env, requestId, corsHeaders);
-    } else if (pathname === "/contact" && method === "POST") {
-      route = "/contact";
+    } else if ((pathname === "/api/contact" || pathname === "/contact") && method === "POST") {
+      route = "/api/contact";
       response = await handleContact(request, env, requestId, corsHeaders);
     } else if (pathname === "/health" && method === "GET") {
       route = "/health";
       response = jsonResponse({ data: { status: "ok" }, meta: { requestId } }, { status: 200, requestId, corsHeaders: corsHeaders || undefined });
-    } else if (pathname === "/api/chat" || pathname === "/chat" || pathname === "/contact") {
+    } else if (pathname === "/api/chat" || pathname === "/chat" || pathname === "/api/contact" || pathname === "/contact") {
       response = errorResponse(405, "Method not allowed", requestId, { corsHeaders: corsHeaders || undefined });
     } else {
       response = errorResponse(404, "Not found", requestId, { corsHeaders: corsHeaders || undefined });

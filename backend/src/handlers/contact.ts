@@ -1,5 +1,6 @@
 import type { Env } from "../config.js";
 import { validateContactRequest } from "../lib/validation.js";
+import { checkRateLimit } from "../lib/rate-limit.js";
 import { sendContactEmail } from "../lib/email.js";
 import { errorResponse, successResponse } from "../lib/response.js";
 import { logError } from "../lib/logging.js";
@@ -23,10 +24,19 @@ export async function handleContact(
   }
   const { name, email, message } = validation.data!;
 
+  // 2. Rate limit — native, 5/min, 20/hour, 40/day per IP, before email
+  const rate = await checkRateLimit(env, request, requestId, "/api/contact");
+  if (!rate.allowed) {
+    return errorResponse(429, "Too many requests. Please try again later.", requestId, {
+      retryAfter: rate.retryAfter,
+      corsHeaders: cors,
+    });
+  }
+
   try {
     await sendContactEmail(env, { name, email, message }, requestId);
   } catch {
-    logError({ requestId, route: "/contact", errorCode: "EMAIL_SEND_FAILED", status: 502 });
+    logError({ requestId, route: "/api/contact", errorCode: "EMAIL_SEND_FAILED", status: 502 });
     return errorResponse(502, "Email service unavailable", requestId, { corsHeaders: cors });
   }
 

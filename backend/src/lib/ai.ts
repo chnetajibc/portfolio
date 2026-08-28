@@ -1,5 +1,4 @@
-import type { Env } from "../config.js";
-import { AI_CONFIG } from "../config.js";
+import { DEFAULTS, AI_CONFIG, type Env } from "../config.js";
 import { SYSTEM_INSTRUCTIONS, GUARDRAILS } from "../ai/system-instructions.js";
 import { PORTFOLIO_CONTEXT } from "../ai/portfolio-context.js";
 import { logAi } from "./logging.js";
@@ -18,7 +17,7 @@ export async function generateChatResponse(
   userMessage: string,
   requestId: string,
 ): Promise<AiResult> {
-  const model = env.AI_MODEL || "@cf/meta/llama-3.1-8b-instruct";
+  const model = env.AI_MODEL || DEFAULTS.AI_MODEL;
   const start = Date.now();
 
   // Build messages: static system instructions + context + guardrails before user query
@@ -31,13 +30,14 @@ export async function generateChatResponse(
   ];
 
   try {
-    // Workers AI run — model is server-side, client cannot select
-    // Non-streaming path uses standard JSON response (official SDK)
-    const result: any = await env.AI.run(model as any, {
+    // Workers AI run — model is server-side, client cannot select, non-streaming
+    const result = (await env.AI.run(model, {
       messages,
       max_tokens: AI_CONFIG.MAX_TOKENS,
       temperature: AI_CONFIG.TEMPERATURE,
-    });
+    } as never)) as
+      | string
+      | { response?: string; result?: { response?: string }; choices?: Array<{ message?: { content?: string } }>; generated_text?: string };
 
     const durationMs = Date.now() - start;
 
@@ -61,15 +61,13 @@ export async function generateChatResponse(
     }
 
     text = text.trim();
-    // Defensive application-level max: truncate to <200 tokens ~ ~800 chars (approx 4 chars/token)
-    // We enforce 1000 chars max as safety, plus token budget via max_tokens
-    if (text.length > 1000) text = text.slice(0, 1000);
 
     logAi({ requestId, model, durationMs, success: true });
     return { success: true, message: text };
-  } catch (e: any) {
+  } catch (e: unknown) {
     const durationMs = Date.now() - start;
-    const msg = String(e?.message || e || "");
+    const err = e as { message?: string; status?: number };
+    const msg = String(err?.message || e || "");
     const lower = msg.toLowerCase();
 
     // Map Workers AI daily free allocation exhaustion per Cloudflare docs:
@@ -78,7 +76,7 @@ export async function generateChatResponse(
     const isDailyLimit =
       msg.includes("3036") ||
       lower.includes("account limited") ||
-      (e?.status === 429 && lower.includes("account limited"));
+      (err?.status === 429 && lower.includes("account limited"));
 
     if (isDailyLimit) {
       logAi({ requestId, model, durationMs, success: false, errorCode: "DAILY_LIMIT_REACHED" });

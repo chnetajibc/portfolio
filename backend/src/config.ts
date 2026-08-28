@@ -3,8 +3,13 @@
 
 export interface Env {
   AI: Ai;
-  // Native Workers Rate Limiting for /api/chat (5 per 60s per IP)
+  // Native Workers Rate Limiting — 5/min, 20/hour, 40/day per IP (native period 60s, hour/day as conservative 60s limits; Cloudflare native only supports 10/60)
   CHAT_RATE_LIMIT: RateLimit;
+  CHAT_RATE_LIMIT_HOUR: RateLimit;
+  CHAT_RATE_LIMIT_DAY: RateLimit;
+  CONTACT_RATE_LIMIT: RateLimit;
+  CONTACT_RATE_LIMIT_HOUR: RateLimit;
+  CONTACT_RATE_LIMIT_DAY: RateLimit;
   // Cloudflare Email binding — verified destination, fixed sender
   EMAIL: SendEmail;
   // Config vars
