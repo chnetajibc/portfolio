@@ -36,7 +36,7 @@ export interface EmailMessage {
 // Fallback constants if env not set (local dev)
 export const DEFAULTS = {
   ALLOWED_ORIGIN: "http://localhost:3000",
-  AI_MODEL: "@cf/meta/llama-3.1-8b-instruct",
+  AI_MODEL: "@cf/qwen/qwen1.5-0.5b-chat",
   CONTACT_TO_EMAIL: "test@example.com",
   CONTACT_FROM_EMAIL: "noreply@chnetaji.com",
 } as const;

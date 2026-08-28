@@ -1,6 +1,6 @@
 import type { Env } from "../config.js";
 import { RATE_LIMITS } from "../config.js";
-import { logRateLimit } from "../utils/logging.js";
+import { logRateLimit } from "./logging.js";
 
 // Rate limiting: native for 60s (5/min), KV for 1h (20) and 1d (40)
 // IMPORTANT: KV is eventually consistent. Counters may be slightly delayed across isolates.

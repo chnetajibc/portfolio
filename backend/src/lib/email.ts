@@ -1,7 +1,7 @@
 import type { Env } from "../config.js";
 import { getEnvConfig } from "../config.js";
-import { escapeHtml } from "../validation/contact.js";
-import { logContact } from "../utils/logging.js";
+import { escapeHtml } from "./validation.js";
+import { logContact } from "./logging.js";
 
 // EmailService interface — easy to replace implementation
 export interface EmailService {

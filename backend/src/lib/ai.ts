@@ -2,7 +2,7 @@ import type { Env } from "../config.js";
 import { AI_CONFIG } from "../config.js";
 import { SYSTEM_INSTRUCTIONS, GUARDRAILS } from "../ai/system-instructions.js";
 import { PORTFOLIO_CONTEXT } from "../ai/portfolio-context.js";
-import { logAi } from "../utils/logging.js";
+import { logAi } from "./logging.js";
 
 export type AiErrorCode = "DAILY_LIMIT_REACHED" | "AI_UNAVAILABLE";
 
@@ -71,19 +71,15 @@ export async function generateChatResponse(
     const msg = String(e?.message || e || "");
     const lower = msg.toLowerCase();
 
-    // Map quota exhaustion to DAILY_LIMIT_REACHED — do not expose raw error
-    // Cloudflare Workers AI quota errors vary: "exceeded", "quota", "neurons", "daily", "429"
-    if (
-      lower.includes("exceeded") ||
-      lower.includes("quota") ||
-      lower.includes("neurons") ||
-      lower.includes("daily") ||
-      lower.includes("limit") ||
-      msg.includes("429") ||
-      e?.status === 429
-    ) {
-      // Check if it's daily limit vs generic rate — we treat quota keywords as daily
-      // Application rate limiting is handled separately, so here we assume AI daily allocation
+    // Map Workers AI daily free allocation exhaustion per Cloudflare docs:
+    // "Account limited" + "Internal error: 3036" + HTTP 429 = 10,000 neurons/day exhausted (00:00 UTC reset)
+    // Do not match arbitrary "limit"/"quota"/"neurons" — use documented codes
+    const isDailyLimit =
+      msg.includes("3036") ||
+      lower.includes("account limited") ||
+      (e?.status === 429 && lower.includes("account limited"));
+
+    if (isDailyLimit) {
       logAi({ requestId, model, durationMs, success: false, errorCode: "DAILY_LIMIT_REACHED" });
       return { success: false, errorCode: "DAILY_LIMIT_REACHED", internalError: msg.slice(0, 200) };
     }
