@@ -32,6 +32,7 @@ export async function generateChatResponse(
 
   try {
     // Workers AI run — model is server-side, client cannot select
+    // Non-streaming path uses standard JSON response (official SDK)
     const result: any = await env.AI.run(model as any, {
       messages,
       max_tokens: AI_CONFIG.MAX_TOKENS,

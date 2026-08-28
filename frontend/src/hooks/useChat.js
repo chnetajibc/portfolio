@@ -44,10 +44,26 @@ export default function useChat({ active, onActivate, onPromptAction }) {
 
     if (checkSmartPrompt(text)) return;
 
+    const aiId = Date.now() + 1;
+    setCurrentAi({ id: aiId, kind: "text", text: "" });
     setIsTyping(true);
     try {
-      const message = await postChat(text);
-      setCurrentAi({ id: Date.now() + 1, kind: "text", text: message });
+      let streamed = "";
+      let didStream = false;
+      const result = await postChat(text, {
+        onChunk: (token, full) => {
+          didStream = true;
+          streamed = full;
+          setIsTyping(false);
+          setCurrentAi({ id: aiId, kind: "text", text: full });
+        },
+      });
+      // Fallback for non-streaming (tests/mock or JSON response)
+      if (!didStream) {
+        const finalText = typeof result === "string" && result ? result : streamed;
+        if (finalText) setCurrentAi({ id: aiId, kind: "text", text: finalText });
+        else setCurrentAi({ id: aiId, kind: "text", text: "" });
+      }
     } catch (err) {
       let msg = "Something went wrong. Please try again later.";
       if (err.code === "DAILY_LIMIT_REACHED") msg = "Daily AI limit reached. Please try again tomorrow.";

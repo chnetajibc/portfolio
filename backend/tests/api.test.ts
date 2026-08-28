@@ -186,6 +186,43 @@ describe("AI success normalization", () => {
     expect(res.headers.get("Cache-Control")).toBe("no-store");
     expect(res.headers.get("X-Content-Type-Options")).toBe("nosniff");
   });
+  it("calls AI without stream for JSON response", async () => {
+    const env = createMockEnv();
+    (env.AI.run as any) = vi.fn(async () => ({ response: "Hello world" }));
+    const res = await handleRequest(req("https://api.test/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: "hello" }) }), env);
+    expect(res.status).toBe(200);
+    const body: any = await res.json();
+    expect(body.data.message).toBe("Hello world");
+    // non-streaming path should not pass stream:true
+    expect((env.AI.run as any).mock.calls[0][1].stream).toBeUndefined();
+  });
+  it("returns streaming SSE when Accept is text/event-stream", async () => {
+    const env = createMockEnv();
+    const stream = new ReadableStream({
+      start(controller) {
+        const enc = new TextEncoder();
+        controller.enqueue(enc.encode(`data: ${JSON.stringify({ response: "Hello " })}\n\n`));
+        controller.enqueue(enc.encode(`data: ${JSON.stringify({ response: "stream" })}\n\n`));
+        controller.enqueue(enc.encode(`data: [DONE]\n\n`));
+        controller.close();
+      },
+    });
+    (env.AI.run as any) = vi.fn(async () => stream);
+    const res = await handleRequest(
+      req("https://api.test/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
+        body: JSON.stringify({ message: "hello" }),
+      }),
+      env,
+    );
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toContain("text/event-stream");
+    const text = await res.text();
+    expect(text).toContain("Hello ");
+    expect(text).toContain("stream");
+    expect((env.AI.run as any).mock.calls[0][1].stream).toBe(true);
+  });
 });
 describe("AI provider failure", () => {
   it("returns 500 Internal server error", async () => {

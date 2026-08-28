@@ -31,8 +31,8 @@ describe("ChatArea", () => {
     render(<ChatArea active={true} onActivate={() => {}} onPromptAction={() => {}} />);
     const input = screen.getByPlaceholderText(/Continue the conversation/);
     await user.type(input, "hello{enter}");
-    // Should show typing indicator
-    await waitFor(() => expect(postChat).toHaveBeenCalledWith("hello"));
+    // Should show typing indicator — now called with streaming opts
+    await waitFor(() => expect(postChat).toHaveBeenCalledWith("hello", expect.any(Object)));
     await waitFor(() => expect(screen.getByText("AI reply")).toBeInTheDocument());
   });
 
