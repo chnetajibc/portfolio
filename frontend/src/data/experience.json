@@ -8,7 +8,6 @@
     "highlights": [
       "Engineered an Alexa+ 1P Expert utilizing error classification models and downstream service integrations to contextualize playback termination utterances. Enhanced system observability by correlating audio telemetry and device configuration events.",
       "Developed an Alexa+ 1P Expert using the Alexa Skills Kit (ASK) and integrated a 3P Audio partner MCP AddOn delegation to facilitate voice-controlled interactions with Spotify.",
-      "Implemented prompt optimizations and feature gating for allowlisted customers, leveraged AWS CDK for skill deployment, and reduced latency to under 1 second.",
       "Optimized video ad playback across Echo Show devices by analyzing codec formats and bitrate efficiency; implemented hardware acceleration strategies to achieve near zero-impact overhead on CPU, GPU, and RAM utilization.",
       "Styled adaptive UI components in react-native to ensure consistent rendering and layout responsiveness across all Alexa Echo Show display form factors."
     ],
