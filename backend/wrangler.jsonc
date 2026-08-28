@@ -1,0 +1,64 @@
+{
+  // Production-ready Wrangler config for portfolio Worker
+  // See: https://developers.cloudflare.com/workers/wrangler/configuration/
+  "name": "portfolio-backend",
+  "main": "src/index.ts",
+  "compatibility_date": "2024-12-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true
+  },
+  // AI binding — server-side model, client cannot select
+  "ai": {
+    "binding": "AI"
+  },
+  // KV for hourly/daily counters (distributed, eventually consistent)
+  // Create with: wrangler kv namespace create RATE_LIMIT_KV
+  // And paste id below. Dist/ preview ids can differ.
+  "kv_namespaces": [
+    {
+      "binding": "RATE_LIMIT_KV",
+      "id": "REPLACE_WITH_KV_ID",
+      "preview_id": "REPLACE_WITH_PREVIEW_KV_ID"
+    }
+  ],
+  // Native short-window rate limiter: 5 req / 60s per client
+  // Create via dashboard or wrangler? Current wrangler ratelimits syntax:
+  // Note: native ratelimit supports 10s or 60s windows only — we use 60s for chat/contact
+  "ratelimits": [
+    {
+      "name": "CHAT_MINUTE_LIMITER",
+      "namespace_id": "chat_minute",
+      "simple": {
+        "limit": 5,
+        "period": 60
+      }
+    },
+    {
+      "name": "CONTACT_MINUTE_LIMITER",
+      "namespace_id": "contact_minute",
+      "simple": {
+        "limit": 5,
+        "period": 60
+      }
+    }
+  ],
+  // Non-secret vars — set via dashboard or wrangler secret for secrets
+  "vars": {
+    // Must be set to frontend origin, e.g. https://chnetaji.com
+    "ALLOWED_ORIGIN": "https://chnetaji.com",
+    // Small cost-efficient model — change without code change
+    "AI_MODEL": "@cf/meta/llama-3.1-8b-instruct",
+    // Email destination — set CONTACT_TO_EMAIL via secret or var
+    "CONTACT_TO_EMAIL": "REPLACE_WITH_DESTINATION@example.com",
+    // Verified sender — must be verified in Cloudflare Email
+    "CONTACT_FROM_EMAIL": "noreply@chnetaji.com"
+  },
+  // Uncomment if using Cloudflare Email Sending (requires paid plan verification)
+  // "send_email": [
+  //   {
+  //     "name": "EMAIL",
+  //     "destination_address": "REPLACE_WITH_DESTINATION@example.com"
+  //   }
+  // ]
+}

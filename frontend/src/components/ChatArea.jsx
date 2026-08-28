@@ -1,7 +1,8 @@
 import React, { useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Send } from "lucide-react";
-import { generateReply, quickPrompts } from "../mock";
+import { quickPrompts } from "../mock";
+import { postChat } from "../lib/api";
 import { ChatCards } from "./ChatCards";
 import HireForm from "./HireForm";
 
@@ -78,7 +79,7 @@ export default function ChatArea({ active, onActivate, onPromptAction, big = fal
     return false;
   };
 
-  const handleSend = (textOverride) => {
+  const handleSend = async (textOverride) => {
     const text = (textOverride ?? input).trim();
     if (!text) return;
     if (!active) onActivate?.();
@@ -91,11 +92,19 @@ export default function ChatArea({ active, onActivate, onPromptAction, big = fal
     if (checkSmartPrompt(text)) return;
 
     setIsTyping(true);
-    setTimeout(() => {
-      const reply = generateReply(text);
-      setCurrentAi({ id: Date.now() + 1, ...reply });
+    try {
+      const message = await postChat(text);
+      setCurrentAi({ id: Date.now() + 1, kind: "text", text: message });
+    } catch (err) {
+      let msg = "Something went wrong. Please try again later.";
+      if (err.code === "DAILY_LIMIT_REACHED") msg = "Daily AI limit reached. Please try again tomorrow.";
+      else if (err.code === "RATE_LIMITED") msg = "You're sending messages too quickly. Please try again later.";
+      else if (err.code === "VALIDATION_ERROR") msg = err.message || "Invalid message.";
+      else if (err.message) msg = err.message;
+      setCurrentAi({ id: Date.now() + 1, kind: "text", text: msg });
+    } finally {
       setIsTyping(false);
-    }, 650 + Math.random() * 400);
+    }
   };
 
   const handlePromptClick = (prompt) => {

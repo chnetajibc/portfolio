@@ -1,22 +1,36 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Send, CheckCircle2, Loader2 } from "lucide-react";
+import { Send, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
+import { postContact } from "../lib/api";
 
 export default function HireForm() {
   const [form, setForm] = useState({
     name: "",
     email: "",
     message: "",
+    website: "", // honeypot
   });
   const [status, setStatus] = useState("idle");
+  const [error, setError] = useState("");
 
   const update = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     if (!form.name || !form.email || !form.message) return;
     setStatus("loading");
-    setTimeout(() => setStatus("done"), 900);
+    setError("");
+    try {
+      await postContact(form);
+      setStatus("done");
+    } catch (err) {
+      let msg = "Failed to send. Please try again.";
+      if (err.code === "RATE_LIMITED") msg = "You're sending messages too quickly. Please try again later.";
+      else if (err.code === "VALIDATION_ERROR") msg = err.message || "Invalid input.";
+      else if (err.message) msg = err.message;
+      setError(msg);
+      setStatus("idle");
+    }
   };
 
   if (status === "done") {
@@ -68,6 +82,22 @@ export default function HireForm() {
             className={`${inputCls} resize-none`}
           />
         </div>
+        {/* Honeypot — hidden from users, catches bots */}
+        <input
+          name="website"
+          value={form.website}
+          onChange={update("website")}
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          className="hidden"
+        />
+        {error && (
+          <div className="flex items-start gap-2 text-[12px] text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
+            <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
         <div className="flex items-center justify-between pt-0.5">
           <span className="text-[11px] font-mono text-neutral-500 dark:text-neutral-400">⌘ replies within 48 hours</span>
           <button

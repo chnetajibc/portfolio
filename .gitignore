@@ -16,3 +16,7 @@ yarn-error.log*
 frontend/dist/
 frontend/build/
 frontend/node_modules/
+backend/dist/
+backend/node_modules/
+backend/.dev.vars
+backend/.wrangler/
