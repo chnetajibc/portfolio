@@ -1,7 +1,7 @@
 // API client for Cloudflare Worker backend
 // Configurable via VITE_API_BASE_URL — do not hardcode localhost in production
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8787";
+const API_BASE = (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_BASE_URL) || "http://localhost:8787";
 
 async function request(path, options = {}) {
   const url = `${API_BASE}${path}`;

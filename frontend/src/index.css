@@ -4,6 +4,11 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scrollbar-gutter: stable;
+  /* Prevent Radix body scroll-lock layout shift */
+}
+
 html, body, #root {
   height: 100%;
 }
@@ -16,6 +21,7 @@ body {
   background: #f4f4f1;
   color: #0a0a0a;
   overflow-x: hidden;
+  overscroll-behavior-y: none;
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
@@ -46,13 +52,14 @@ code, .font-mono {
 }
 html.dark .grain::before { opacity: 0.06; mix-blend-mode: screen; }
 
-/* Soft animated background blobs */
+/* Soft animated background blobs — optimized for mobile (contain + will-change) */
 .bg-aurora {
   position: fixed;
   inset: 0;
   overflow: hidden;
   z-index: 0;
   pointer-events: none;
+  contain: paint;
 }
 .bg-aurora::before,
 .bg-aurora::after {
@@ -61,6 +68,9 @@ html.dark .grain::before { opacity: 0.06; mix-blend-mode: screen; }
   border-radius: 9999px;
   filter: blur(90px);
   opacity: 0.55;
+  will-change: transform;
+  transform: translateZ(0);
+  contain: paint;
 }
 .bg-aurora::before {
   width: 480px; height: 480px;
@@ -83,12 +93,28 @@ html.dark .bg-aurora::after {
   opacity: 0.35;
 }
 @keyframes drift {
-  0% { transform: translate(0,0) scale(1); }
-  100% { transform: translate(60px, 40px) scale(1.1); }
+  0% { transform: translate3d(0,0,0) scale(1); }
+  100% { transform: translate3d(60px, 40px, 0) scale(1.1); }
 }
 @keyframes drift2 {
-  0% { transform: translate(0,0) scale(1); }
-  100% { transform: translate(-60px, -40px) scale(1.05); }
+  0% { transform: translate3d(0,0,0) scale(1); }
+  100% { transform: translate3d(-60px, -40px, 0) scale(1.05); }
+}
+
+/* Reduce motion on mobile + prefers-reduced-motion — fixes jitter */
+@media (max-width: 768px) {
+  .bg-aurora::before,
+  .bg-aurora::after {
+    filter: blur(60px);
+    opacity: 0.35;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-aurora::before,
+  .bg-aurora::after,
+  .avatar-shine::after {
+    animation: none !important;
+  }
 }
 
 @keyframes twinkle {
@@ -101,10 +127,21 @@ html.dark .bg-aurora::after {
   75%, 100% { transform: scale(2.1); opacity: 0; }
 }
 
+.thin-scroll {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+}
 .thin-scroll::-webkit-scrollbar { width: 6px; }
 .thin-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.18); border-radius: 999px; }
 html.dark .thin-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); }
 .thin-scroll::-webkit-scrollbar-track { background: transparent; }
+
+/* Ensure modal scroll containers are contained and not chaining to body */
+[data-radix-dialog-content] {
+  overscroll-behavior: contain;
+}
 
 ::selection { background: #1d4ed8; color: #fff; }
 

@@ -25,7 +25,7 @@ export default function Portfolio() {
   };
 
   return (
-    <div className="relative min-h-screen w-full overflow-x-hidden flex items-center justify-center">
+    <div className="relative min-h-screen min-h-[100dvh] w-full overflow-x-hidden flex items-center justify-center">
       <Background />
 
       {/* Top-right controls */}
