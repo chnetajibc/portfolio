@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { handleRequest } from "../src/router.js";
 import type { Env } from "../src/config.js";
+import { CONTACT_TO, CONTACT_FROM } from "../src/lib/email.js";
 
 class MockKV {
   store = new Map<string, string>();
@@ -25,15 +26,15 @@ function createMockEnv(overrides: Partial<Env> = {}): Env {
   const mockKv = new MockKV() as unknown as KVNamespace;
   const mockChatLimiter = new MockRateLimit() as unknown as RateLimit;
   const mockContactLimiter = new MockRateLimit() as unknown as RateLimit;
+  const mockEmail = { send: vi.fn(async () => ({ messageId: "test-id" })) } as unknown as SendEmail;
   return {
     AI: { run: vi.fn(async () => ({ response: "Hello from AI" })) } as unknown as Ai,
     RATE_LIMIT_KV: mockKv,
     CHAT_MINUTE_LIMITER: mockChatLimiter,
     CONTACT_MINUTE_LIMITER: mockContactLimiter,
+    EMAIL: mockEmail,
     ALLOWED_ORIGIN: "https://chnetaji.com",
     AI_MODEL: "@cf/qwen/qwen1.5-0.5b-chat",
-    CONTACT_TO_EMAIL: "to@example.com",
-    CONTACT_FROM_EMAIL: "from@chnetaji.com",
     ENVIRONMENT: "test",
     ...overrides,
   } as Env;
@@ -212,21 +213,110 @@ describe("daily AI limit error normalization", () => {
   });
 });
 describe("email success", () => {
-  it("returns 200", async () => {
+  it("returns 200 and calls Cloudflare binding with correct fixed recipient and replyTo", async () => {
     const env = createMockEnv();
+    const sendSpy = env.EMAIL.send as unknown as ReturnType<typeof vi.fn>;
     const res = await handleRequest(req("https://api.test/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: "John Doe", email: "john@example.com", message: "Hello!" }) }), env);
     expect(res.status).toBe(200);
     expect((await res.json() as any).data.message).toMatch(/received/i);
+    expect(sendSpy).toHaveBeenCalledTimes(1);
+    const args = (sendSpy as any).mock.calls[0][0];
+    expect(args.to).toBe(CONTACT_TO);
+    expect(args.to).toBe("chnetajibc@gmail.com");
+    expect(args.from).toBe(CONTACT_FROM);
+    expect(args.from).toBe("noreply@chnetaji.com");
+    expect(args.replyTo).toBe("john@example.com");
+    // Must use replyTo field, not headers
+    expect(args.headers).toBeUndefined();
+    expect(args.subject).toContain("John Doe");
+    expect(args.text).toContain("Hello!");
+    expect(args.html).toContain("Hello!");
+    // No any-cast leakage: verify sanitization still works via escaped html
+    expect(args.html).not.toContain("<script");
+  });
+  it("sanitizes HTML and uses plain-text", async () => {
+    const env = createMockEnv();
+    const sendSpy = env.EMAIL.send as unknown as ReturnType<typeof vi.fn>;
+    const res = await handleRequest(req("https://api.test/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: "<b>Alice</b>", email: "alice@example.com", message: "<script>alert(1)</script>" }) }), env);
+    expect(res.status).toBe(200);
+    const args = (sendSpy as any).mock.calls[0][0];
+    expect(args.html).toContain("&lt;script&gt;");
+    expect(args.html).not.toContain("<script>");
+    expect(args.text).toContain("<script>alert(1)</script>");
   });
 });
+
+describe("email recipient cannot be controlled", () => {
+  it("rejects request that tries to inject recipient via extra field", async () => {
+    const env = createMockEnv();
+    const sendSpy = env.EMAIL.send as unknown as ReturnType<typeof vi.fn>;
+    const res = await handleRequest(req("https://api.test/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: "John", email: "john@example.com", message: "hi", to: "evil@evil.com" }) }), env);
+    expect(res.status).toBe(400);
+    expect(sendSpy).not.toHaveBeenCalled();
+  });
+  it("rejects recipient field variations", async () => {
+    const env = createMockEnv();
+    const sendSpy = env.EMAIL.send as unknown as ReturnType<typeof vi.fn>;
+    const res = await handleRequest(req("https://api.test/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: "John", email: "john@example.com", message: "hi", recipient: "evil@evil.com", destination: "evil@evil.com" }) }), env);
+    expect(res.status).toBe(400);
+    expect(sendSpy).not.toHaveBeenCalled();
+  });
+  it("always sends to fixed destination regardless of visitor email domain", async () => {
+    const env = createMockEnv();
+    const sendSpy = env.EMAIL.send as unknown as ReturnType<typeof vi.fn>;
+    await handleRequest(req("https://api.test/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: "John", email: "attacker@evil.com", message: "hi" }) }), env);
+    const args = (sendSpy as any).mock.calls[0][0];
+    expect(args.to).toBe("chnetajibc@gmail.com");
+    expect(args.to).not.toBe("attacker@evil.com");
+  });
+  it("visitor email is used only as Reply-To", async () => {
+    const env = createMockEnv();
+    const sendSpy = env.EMAIL.send as unknown as ReturnType<typeof vi.fn>;
+    await handleRequest(req("https://api.test/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: "John", email: "visitor@example.com", message: "hi" }) }), env);
+    const args = (sendSpy as any).mock.calls[0][0];
+    expect(args.replyTo).toBe("visitor@example.com");
+    expect(args.from).not.toBe("visitor@example.com");
+    expect(args.to).not.toBe("visitor@example.com");
+  });
+});
+
 describe("email failure", () => {
-  it("returns 502 Email service unavailable", async () => {
+  it("returns 502 Email service unavailable without leaking internals", async () => {
     const env = createMockEnv({ ENVIRONMENT: "production" } as any);
-    env.CONTACT_TO_EMAIL = "to@example.com";
-    (env as any).EMAIL = { send: async () => { throw new Error("SMTP error"); } };
+    (env as any).EMAIL = { send: async () => { throw new Error("SMTP error internal secret"); } };
+    const res = await handleRequest(req("https://api.test/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: "John", email: "john@example.com", message: "Hello!" }) }), env);
+    expect(res.status).toBe(502);
+    const body: any = await res.json();
+    expect(body.error).toBe("Email service unavailable");
+    expect(JSON.stringify(body)).not.toContain("SMTP error");
+    expect(JSON.stringify(body)).not.toContain("secret");
+    expect(JSON.stringify(body)).not.toContain("john@example.com");
+  });
+  it("returns 502 when EMAIL binding missing", async () => {
+    const env = createMockEnv();
+    (env as any).EMAIL = undefined;
     const res = await handleRequest(req("https://api.test/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: "John", email: "john@example.com", message: "Hello!" }) }), env);
     expect(res.status).toBe(502);
     expect((await res.json() as any).error).toBe("Email service unavailable");
+  });
+});
+
+describe("rate limiting before email sending", () => {
+  it("does not call EMAIL.send when rate limited on contact", async () => {
+    const env = createMockEnv();
+    (env.CONTACT_MINUTE_LIMITER as unknown as MockRateLimit).shouldFail = true;
+    const sendSpy = env.EMAIL.send as unknown as ReturnType<typeof vi.fn>;
+    const res = await handleRequest(req("https://api.test/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: "John", email: "john@example.com", message: "Hello!" }) }), env);
+    expect(res.status).toBe(429);
+    expect((await res.json() as any).error).toBe("Rate limit exceeded");
+    expect(sendSpy).not.toHaveBeenCalled();
+  });
+  it("does not call EMAIL.send when validation fails", async () => {
+    const env = createMockEnv();
+    const sendSpy = env.EMAIL.send as unknown as ReturnType<typeof vi.fn>;
+    const res = await handleRequest(req("https://api.test/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: "John", email: "not-an-email", message: "hi" }) }), env);
+    expect(res.status).toBe(400);
+    expect(sendSpy).not.toHaveBeenCalled();
   });
 });
 describe("CORS rejection", () => {

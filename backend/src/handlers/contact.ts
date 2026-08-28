@@ -2,7 +2,7 @@ import type { Env } from "../config.js";
 import { validateContactRequest } from "../lib/validation.js";
 import { getClientId } from "../lib/client-id.js";
 import { checkRateLimits } from "../lib/rate-limit.js";
-import { emailService } from "../lib/email.js";
+import { sendContactEmail } from "../lib/email.js";
 import { errorResponse, successResponse } from "../lib/response.js";
 import { logError } from "../lib/logging.js";
 
@@ -35,8 +35,9 @@ export async function handleContact(
     });
   }
 
-  const result = await emailService.sendContactEmail({ name, email, message, requestId, env });
-  if (!result.success) {
+  try {
+    await sendContactEmail(env, { name, email, message }, requestId);
+  } catch {
     logError({ requestId, route: "/contact", errorCode: "EMAIL_SEND_FAILED", status: 502 });
     return errorResponse(502, "Email service unavailable", requestId, { corsHeaders: cors });
   }

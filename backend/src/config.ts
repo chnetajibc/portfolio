@@ -7,38 +7,19 @@ export interface Env {
   // Native rate limiters (60s window, 5 req)
   CHAT_MINUTE_LIMITER: RateLimit;
   CONTACT_MINUTE_LIMITER: RateLimit;
+  // Cloudflare Email binding — verified destination, fixed sender
+  EMAIL: SendEmail;
   // Config vars
   ALLOWED_ORIGIN: string;
   AI_MODEL: string;
-  CONTACT_TO_EMAIL: string;
-  CONTACT_FROM_EMAIL: string;
-  // Optional: Cloudflare Email binding (requires paid verification)
-  EMAIL?: EmailService;
   // Optional: for testing / local dev
   ENVIRONMENT?: string;
-}
-
-// Cloudflare Email binding type (if send_email is configured)
-// This is intentionally loose — we validate at runtime
-export interface EmailService {
-  send(message: EmailMessage): Promise<void>;
-}
-
-export interface EmailMessage {
-  from: string;
-  to: string;
-  subject: string;
-  text?: string;
-  html?: string;
-  replyTo?: string;
 }
 
 // Fallback constants if env not set (local dev)
 export const DEFAULTS = {
   ALLOWED_ORIGIN: "http://localhost:3000",
   AI_MODEL: "@cf/qwen/qwen1.5-0.5b-chat",
-  CONTACT_TO_EMAIL: "test@example.com",
-  CONTACT_FROM_EMAIL: "noreply@chnetaji.com",
 } as const;
 
 // Rate limit constants — independent for chat and contact
@@ -84,7 +65,5 @@ export function getEnvConfig(env: Env) {
   return {
     allowedOrigin: env.ALLOWED_ORIGIN || DEFAULTS.ALLOWED_ORIGIN,
     aiModel: env.AI_MODEL || DEFAULTS.AI_MODEL,
-    contactTo: env.CONTACT_TO_EMAIL || DEFAULTS.CONTACT_TO_EMAIL,
-    contactFrom: env.CONTACT_FROM_EMAIL || DEFAULTS.CONTACT_FROM_EMAIL,
   };
 }

@@ -1,6 +1,4 @@
 # Copy to .dev.vars for `wrangler dev`
 ALLOWED_ORIGIN=http://localhost:3000
 AI_MODEL=@cf/meta/llama-3.1-8b-instruct
-CONTACT_TO_EMAIL=to@example.com
-CONTACT_FROM_EMAIL=from@chnetaji.com
 ENVIRONMENT=development

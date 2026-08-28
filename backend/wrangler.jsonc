@@ -14,10 +14,12 @@
   ],
   "vars": {
     "ALLOWED_ORIGIN": "https://chnetaji.com",
-    "AI_MODEL": "@cf/qwen/qwen1.5-0.5b-chat",
-    "CONTACT_TO_EMAIL": "REPLACE_WITH_DESTINATION@example.com",
-    "CONTACT_FROM_EMAIL": "noreply@chnetaji.com"
-  }
-  // Email: add send_email binding after verifying domain (requires Workers Paid)
-  // "send_email": [{ "name": "EMAIL", "destination_address": "REPLACE_WITH_DESTINATION@example.com" }]
+    "AI_MODEL": "@cf/qwen/qwen1.5-0.5b-chat"
+  },
+  "send_email": [
+    {
+      "name": "EMAIL",
+      "destination_address": "chnetajibc@gmail.com"
+    }
+  ]
 }

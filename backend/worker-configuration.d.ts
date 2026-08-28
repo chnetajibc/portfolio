@@ -6,10 +6,8 @@ interface Env {
   RATE_LIMIT_KV: KVNamespace;
   CHAT_MINUTE_LIMITER: RateLimit;
   CONTACT_MINUTE_LIMITER: RateLimit;
+  EMAIL: SendEmail;
   ALLOWED_ORIGIN: string;
   AI_MODEL: string;
-  CONTACT_TO_EMAIL: string;
-  CONTACT_FROM_EMAIL: string;
-  EMAIL?: any;
   ENVIRONMENT?: string;
 }
