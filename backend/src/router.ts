@@ -30,8 +30,8 @@ export async function handleRequest(request: Request, env: Env): Promise<Respons
   let route = pathname;
 
   try {
-    if (pathname === "/chat" && method === "POST") {
-      route = "/chat";
+    if ((pathname === "/api/chat" || pathname === "/chat") && method === "POST") {
+      route = pathname;
       response = await handleChat(request, env, requestId, corsHeaders);
     } else if (pathname === "/contact" && method === "POST") {
       route = "/contact";
@@ -39,7 +39,7 @@ export async function handleRequest(request: Request, env: Env): Promise<Respons
     } else if (pathname === "/health" && method === "GET") {
       route = "/health";
       response = jsonResponse({ data: { status: "ok" }, meta: { requestId } }, { status: 200, requestId, corsHeaders: corsHeaders || undefined });
-    } else if (pathname === "/chat" || pathname === "/contact") {
+    } else if (pathname === "/api/chat" || pathname === "/chat" || pathname === "/contact") {
       response = errorResponse(405, "Method not allowed", requestId, { corsHeaders: corsHeaders || undefined });
     } else {
       response = errorResponse(404, "Not found", requestId, { corsHeaders: corsHeaders || undefined });

@@ -3,17 +3,11 @@ import { handleRequest } from "../src/router.js";
 import type { Env } from "../src/config.js";
 import { CONTACT_TO, CONTACT_FROM } from "../src/lib/email.js";
 
-class MockKV {
-  store = new Map<string, string>();
-  async get(key: string, _type?: any) { return this.store.get(key) || null; }
-  async put(key: string, value: string, _opts?: any) { this.store.set(key, value); }
-  async delete(key: string) { this.store.delete(key); }
-  async list() { return { keys: [], list_complete: true, cacheStatus: null } as any; }
-  async getWithMetadata() { return { value: null, metadata: null } as any; }
-}
 class MockRateLimit {
   shouldFail = false;
-  async limit(_opts: any) {
+  lastKey: string | null = null;
+  async limit(opts: any) {
+    this.lastKey = opts?.key ?? null;
     if (this.shouldFail) {
       const err: any = new Error("Rate limit exceeded");
       err.code = "rate_limited";
@@ -23,15 +17,11 @@ class MockRateLimit {
   }
 }
 function createMockEnv(overrides: Partial<Env> = {}): Env {
-  const mockKv = new MockKV() as unknown as KVNamespace;
   const mockChatLimiter = new MockRateLimit() as unknown as RateLimit;
-  const mockContactLimiter = new MockRateLimit() as unknown as RateLimit;
   const mockEmail = { send: vi.fn(async () => ({ messageId: "test-id" })) } as unknown as SendEmail;
   return {
     AI: { run: vi.fn(async () => ({ response: "Hello from AI" })) } as unknown as Ai,
-    RATE_LIMIT_KV: mockKv,
-    CHAT_MINUTE_LIMITER: mockChatLimiter,
-    CONTACT_MINUTE_LIMITER: mockContactLimiter,
+    CHAT_RATE_LIMIT: mockChatLimiter,
     EMAIL: mockEmail,
     ALLOWED_ORIGIN: "https://chnetaji.com",
     AI_MODEL: "@cf/qwen/qwen1.5-0.5b-chat",
@@ -161,14 +151,27 @@ describe("honeypot", () => {
   });
 });
 describe("rate limit behavior", () => {
-  it("minute limit returns 429 Rate limit exceeded", async () => {
+  it("chat rate limit returns 429 Too many requests with Retry-After", async () => {
     const env = createMockEnv();
-    (env.CHAT_MINUTE_LIMITER as unknown as MockRateLimit).shouldFail = true;
-    const res = await handleRequest(req("https://api.test/chat", { method: "POST", headers: { "Content-Type": "application/json", "CF-Connecting-IP": "1.2.3.4" }, body: JSON.stringify({ message: "hello" }) }), env);
+    (env.CHAT_RATE_LIMIT as unknown as MockRateLimit).shouldFail = true;
+    const res = await handleRequest(req("https://api.test/api/chat", { method: "POST", headers: { "Content-Type": "application/json", "CF-Connecting-IP": "1.2.3.4" }, body: JSON.stringify({ message: "hello" }) }), env);
     expect(res.status).toBe(429);
     const body: any = await res.json();
-    expect(body.error).toBe("Rate limit exceeded");
+    expect(body.error).toBe("Too many requests. Please try again later.");
     expect(res.headers.get("Retry-After")).toBeDefined();
+  });
+  it("uses CF-Connecting-IP as rate limit key", async () => {
+    const env = createMockEnv();
+    const limiter = env.CHAT_RATE_LIMIT as unknown as MockRateLimit;
+    await handleRequest(req("https://api.test/api/chat", { method: "POST", headers: { "Content-Type": "application/json", "CF-Connecting-IP": "9.9.9.9" }, body: JSON.stringify({ message: "hello" }) }), env);
+    expect(limiter.lastKey).toBe("9.9.9.9");
+  });
+  it("also rate limits legacy /chat path (backward compat)", async () => {
+    const env = createMockEnv();
+    (env.CHAT_RATE_LIMIT as unknown as MockRateLimit).shouldFail = true;
+    const res = await handleRequest(req("https://api.test/chat", { method: "POST", headers: { "Content-Type": "application/json", "CF-Connecting-IP": "1.2.3.4" }, body: JSON.stringify({ message: "hello" }) }), env);
+    expect(res.status).toBe(429);
+    expect((await res.json() as any).error).toBe("Too many requests. Please try again later.");
   });
 });
 describe("AI success normalization", () => {
@@ -302,14 +305,14 @@ describe("email failure", () => {
 });
 
 describe("rate limiting before email sending", () => {
-  it("does not call EMAIL.send when rate limited on contact", async () => {
+  it("does not rate limit contact — applies only to /api/chat", async () => {
     const env = createMockEnv();
-    (env.CONTACT_MINUTE_LIMITER as unknown as MockRateLimit).shouldFail = true;
+    (env.CHAT_RATE_LIMIT as unknown as MockRateLimit).shouldFail = true;
     const sendSpy = env.EMAIL.send as unknown as ReturnType<typeof vi.fn>;
     const res = await handleRequest(req("https://api.test/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: "John", email: "john@example.com", message: "Hello!" }) }), env);
-    expect(res.status).toBe(429);
-    expect((await res.json() as any).error).toBe("Rate limit exceeded");
-    expect(sendSpy).not.toHaveBeenCalled();
+    // contact should still succeed even when chat limiter is tripped
+    expect(res.status).toBe(200);
+    expect(sendSpy).toHaveBeenCalledTimes(1);
   });
   it("does not call EMAIL.send when validation fails", async () => {
     const env = createMockEnv();

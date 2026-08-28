@@ -5,12 +5,8 @@
   "compatibility_flags": ["nodejs_compat"],
   "observability": { "enabled": true },
   "ai": { "binding": "AI" },
-  "kv_namespaces": [
-    { "binding": "RATE_LIMIT_KV", "id": "REPLACE_WITH_KV_ID", "preview_id": "REPLACE_WITH_PREVIEW_KV_ID" }
-  ],
   "ratelimits": [
-    { "name": "CHAT_MINUTE_LIMITER", "namespace_id": "chat_minute", "simple": { "limit": 5, "period": 60 } },
-    { "name": "CONTACT_MINUTE_LIMITER", "namespace_id": "contact_minute", "simple": { "limit": 5, "period": 60 } }
+    { "name": "CHAT_RATE_LIMIT", "namespace_id": "1", "simple": { "limit": 5, "period": 60 } }
   ],
   "vars": {
     "ALLOWED_ORIGIN": "https://chnetaji.com",

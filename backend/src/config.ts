@@ -3,10 +3,8 @@
 
 export interface Env {
   AI: Ai;
-  RATE_LIMIT_KV: KVNamespace;
-  // Native rate limiters (60s window, 5 req)
-  CHAT_MINUTE_LIMITER: RateLimit;
-  CONTACT_MINUTE_LIMITER: RateLimit;
+  // Native Workers Rate Limiting for /api/chat (5 per 60s per IP)
+  CHAT_RATE_LIMIT: RateLimit;
   // Cloudflare Email binding — verified destination, fixed sender
   EMAIL: SendEmail;
   // Config vars
@@ -22,18 +20,10 @@ export const DEFAULTS = {
   AI_MODEL: "@cf/qwen/qwen1.5-0.5b-chat",
 } as const;
 
-// Rate limit constants — independent for chat and contact
-export const RATE_LIMITS = {
-  CHAT: {
-    MINUTE: { limit: 5, windowSec: 60 },
-    HOUR: { limit: 20, windowSec: 3600 },
-    DAY: { limit: 40, windowSec: 86400 },
-  },
-  CONTACT: {
-    MINUTE: { limit: 5, windowSec: 60 },
-    HOUR: { limit: 20, windowSec: 3600 },
-    DAY: { limit: 40, windowSec: 86400 },
-  },
+// Rate limit constants — native binding only (5 per 60s for /api/chat)
+export const CHAT_RATE_LIMIT = {
+  LIMIT: 5,
+  PERIOD_SEC: 60,
 } as const;
 
 // Validation limits

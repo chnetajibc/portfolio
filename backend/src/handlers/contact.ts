@@ -1,7 +1,5 @@
 import type { Env } from "../config.js";
 import { validateContactRequest } from "../lib/validation.js";
-import { getClientId } from "../lib/client-id.js";
-import { checkRateLimits } from "../lib/rate-limit.js";
 import { sendContactEmail } from "../lib/email.js";
 import { errorResponse, successResponse } from "../lib/response.js";
 import { logError } from "../lib/logging.js";
@@ -24,16 +22,6 @@ export async function handleContact(
     return errorResponse(400, "Invalid request", requestId, { corsHeaders: cors });
   }
   const { name, email, message } = validation.data!;
-
-  // 2. Rate limit — independent for contact
-  const clientId = await getClientId(request);
-  const rate = await checkRateLimits(env, "contact", clientId, requestId);
-  if (!rate.allowed) {
-    return errorResponse(429, "Rate limit exceeded", requestId, {
-      retryAfter: rate.retryAfter,
-      corsHeaders: cors,
-    });
-  }
 
   try {
     await sendContactEmail(env, { name, email, message }, requestId);

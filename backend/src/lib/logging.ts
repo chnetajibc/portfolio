@@ -65,7 +65,6 @@ export function logError(opts: {
 export function logRateLimit(opts: {
   requestId: string;
   route: string;
-  limitType: "minute" | "hour" | "day";
   retryAfter: number;
 }) {
   log("rate_limit", opts);

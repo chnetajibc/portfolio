@@ -6,9 +6,6 @@ export default defineConfig({
     poolOptions: {
       workers: {
         wrangler: { configPath: "./wrangler.jsonc" },
-        miniflare: {
-          kvNamespaces: ["RATE_LIMIT_KV"],
-        },
       },
     },
     include: ["tests/**/*.test.ts"],
