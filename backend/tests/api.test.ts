@@ -27,8 +27,8 @@ function createMockEnv(overrides: Partial<Env> = {}): Env {
     CONTACT_RATE_LIMIT_HOUR: mk(),
     CONTACT_RATE_LIMIT_DAY: mk(),
     EMAIL: mockEmail,
-    ALLOWED_ORIGIN: "https://chentaji.com",
-    AI_MODEL: "@cf/qwen/qwen1.5-0.5b-chat",
+    ALLOWED_ORIGIN: "https://chnetaji.com",
+    AI_MODEL: "@cf/meta/llama-3.2-3b-instruct",
     ENVIRONMENT: "test",
     ...overrides,
   } as Env;
@@ -61,9 +61,9 @@ describe("unsupported HTTP methods -> 405", () => {
 describe("OPTIONS -> correct CORS response", () => {
   it("returns 204 with CORS headers for allowed origin", async () => {
     const env = createMockEnv();
-    const res = await handleRequest(req("https://api.test/api/chat", { method: "OPTIONS", headers: { Origin: "https://chentaji.com" } }), env);
+    const res = await handleRequest(req("https://api.test/api/chat", { method: "OPTIONS", headers: { Origin: "https://chnetaji.com" } }), env);
     expect(res.status).toBe(204);
-    expect(res.headers.get("Access-Control-Allow-Origin")).toBe("https://chentaji.com");
+    expect(res.headers.get("Access-Control-Allow-Origin")).toBe("https://chnetaji.com");
     expect(res.headers.get("Vary")).toContain("Origin");
   });
 });
@@ -268,7 +268,7 @@ describe("email success", () => {
     expect(args.to).toBe(CONTACT_TO);
     expect(args.to).toBe("chnetajibc@gmail.com");
     expect(args.from).toBe(CONTACT_FROM);
-    expect(args.from).toBe("noreply@chentaji.com");
+    expect(args.from).toBe("noreply@chnetaji.com");
     expect(args.replyTo).toBe("john@example.com");
     expect(args.headers).toBeUndefined();
     expect(args.subject).toContain("John Doe");

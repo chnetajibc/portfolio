@@ -11,7 +11,7 @@ export interface ContactInput {
 // Fixed addresses — destination is verified and enforced at Wrangler binding level via
 // `destination_address`; code also hardcodes to prevent request-controlled recipient.
 export const CONTACT_TO = "chnetajibc@gmail.com";
-export const CONTACT_FROM = "noreply@chentaji.com";
+export const CONTACT_FROM = "noreply@chnetaji.com";
 
 // Single Cloudflare-only implementation — no fallback, no abstraction
 export async function sendContactEmail(env: Env, input: ContactInput, requestId: string): Promise<void> {

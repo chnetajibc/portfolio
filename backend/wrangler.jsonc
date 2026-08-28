@@ -15,7 +15,7 @@
   ],
   "vars": {
     "ALLOWED_ORIGIN": "https://chnetaji.com",
-    "AI_MODEL": "@cf/qwen/qwen1.5-0.5b-chat"
+    "AI_MODEL": "@cf/meta/llama-3.2-3b-instruct"
   },
   "send_email": [
     {
