@@ -28,7 +28,7 @@ function createMockEnv(overrides: Partial<Env> = {}): Env {
     CONTACT_RATE_LIMIT_DAY: mk(),
     EMAIL: mockEmail,
     ALLOWED_ORIGIN: "https://chnetaji.com",
-    AI_MODEL: "@cf/meta/llama-3.2-3b-instruct",
+    AI_MODEL: "@cf/google/gemma-2b-it-lora",
     ENVIRONMENT: "test",
     ...overrides,
   } as Env;
