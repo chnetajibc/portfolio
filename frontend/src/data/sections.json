@@ -3,24 +3,32 @@
     "id": "experience",
     "label": "Experience",
     "sub": "4 roles · 1.5 years",
-    "icon": "Briefcase"
+    "icon": "Briefcase",
+    "title": "Experience",
+    "subtitle": "Roles, teams and the dents I've made."
   },
   {
     "id": "projects",
     "label": "Projects",
     "sub": "2 projects · 3 Products",
-    "icon": "FolderGit2"
+    "icon": "FolderGit2",
+    "title": "Projects",
+    "subtitle": "Things I built and shipping."
   },
   {
     "id": "skills",
     "label": "Skills",
     "sub": "AI · Cloud · SDE",
-    "icon": "Wrench"
+    "icon": "Wrench",
+    "title": "Skills",
+    "subtitle": "My toolbox — honest about levels."
   },
   {
     "id": "achievements",
     "label": "Achievements",
     "sub": "Awards & Contests",
-    "icon": "Trophy"
+    "icon": "Trophy",
+    "title": "Achievements",
+    "subtitle": "Awards, talks, certifications, papers."
   }
 ]

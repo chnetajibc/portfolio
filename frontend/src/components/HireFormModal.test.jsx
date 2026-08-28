@@ -20,17 +20,16 @@ describe("HireFormModal", () => {
   it("closes via close button", async () => {
     const user = userEvent.setup();
     render(<HireFormModal open={true} onClose={onClose} />);
-    const btns = await screen.findAllByRole("button");
-    // Close button is first with X icon
-    await user.click(btns[0]);
+    const closeBtn = await screen.findByRole("button", { name: /close/i });
+    await user.click(closeBtn);
     expect(onClose).toHaveBeenCalled();
   });
 
   it("closes via backdrop click", async () => {
     const user = userEvent.setup();
     render(<HireFormModal open={true} onClose={onClose} />);
-    // Backdrop is fixed inset-0 with bg-black/40
-    const backdrop = document.querySelector(".bg-black\\/40");
+    // Radix Dialog overlay is bg-black/80 with data state
+    const backdrop = document.querySelector("[data-radix-dialog-overlay]") || document.querySelector(".bg-black\\/80");
     expect(backdrop).toBeInTheDocument();
     await user.click(backdrop);
     expect(onClose).toHaveBeenCalled();

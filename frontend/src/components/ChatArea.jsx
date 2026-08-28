@@ -1,19 +1,10 @@
-import React, { useRef, useState } from "react";
+import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Send } from "lucide-react";
 import { quickPrompts } from "../mock";
-import { postChat } from "../lib/api";
+import useChat from "../hooks/useChat";
 import { ChatCards } from "./ChatCards";
 import HireForm from "./HireForm";
-
-const SMART_PROMPTS = {
-  skills: "skills",
-  achievements: "achievements",
-  experience: "experience",
-  projects: "projects",
-};
-
-const HIRE_KEYWORDS = ["hire", "contact", "contact you", "how to hire", "how do i contact you"];
 
 function TypingIndicator() {
   return (
@@ -51,79 +42,18 @@ function UserBubble({ children }) {
 }
 
 export default function ChatArea({ active, onActivate, onPromptAction, big = false }) {
-  const [input, setInput] = useState("");
-  const [currentUser, setCurrentUser] = useState(null);
-  const [currentAi, setCurrentAi] = useState(null);
-  const [isTyping, setIsTyping] = useState(false);
-  const [showHireForm, setShowHireForm] = useState(false);
-  const inputRef = useRef(null);
-
-  const checkSmartPrompt = (text) => {
-    const lower = text.toLowerCase().trim();
-
-    if (HIRE_KEYWORDS.some((k) => lower.includes(k))) {
-      setShowHireForm(true);
-      setCurrentAi(null);
-      return true;
-    }
-
-    for (const [keyword, action] of Object.entries(SMART_PROMPTS)) {
-      if (lower === keyword) {
-        setShowHireForm(false);
-        setCurrentAi(null);
-        onPromptAction?.(action);
-        return true;
-      }
-    }
-
-    return false;
-  };
-
-  const handleSend = async (textOverride) => {
-    const text = (textOverride ?? input).trim();
-    if (!text) return;
-    if (!active) onActivate?.();
-
-    setCurrentUser({ id: Date.now(), text });
-    setCurrentAi(null);
-    setShowHireForm(false);
-    setInput("");
-
-    if (checkSmartPrompt(text)) return;
-
-    setIsTyping(true);
-    try {
-      const message = await postChat(text);
-      setCurrentAi({ id: Date.now() + 1, kind: "text", text: message });
-    } catch (err) {
-      let msg = "Something went wrong. Please try again later.";
-      if (err.code === "DAILY_LIMIT_REACHED") msg = "Daily AI limit reached. Please try again tomorrow.";
-      else if (err.code === "RATE_LIMITED") msg = "You're sending messages too quickly. Please try again later.";
-      else if (err.code === "VALIDATION_ERROR") msg = err.message || "Invalid message.";
-      else if (err.message) msg = err.message;
-      setCurrentAi({ id: Date.now() + 1, kind: "text", text: msg });
-    } finally {
-      setIsTyping(false);
-    }
-  };
-
-  const handlePromptClick = (prompt) => {
-    if (prompt.id === "hire") {
-      if (!active) onActivate?.();
-      setCurrentUser({ id: Date.now(), text: prompt.label });
-      setCurrentAi(null);
-      setShowHireForm(true);
-      return;
-    }
-    handleSend(prompt.label);
-  };
-
-  const onKeyDown = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
+  const {
+    input,
+    setInput,
+    currentUser,
+    currentAi,
+    isTyping,
+    showHireForm,
+    inputRef,
+    handleSend,
+    handlePromptClick,
+    onKeyDown,
+  } = useChat({ active, onActivate, onPromptAction });
 
   const showSendButton = input.trim().length > 0;
   const promptsToShow = active ? quickPrompts.filter((p) => p.keep) : quickPrompts;
