@@ -45,85 +45,76 @@ export async function postChat(message, opts = {}) {
   }
   const { onChunk, signal } = opts || {};
 
-  // Streaming path: when onChunk is provided, request event-stream and parse SSE
-  if (typeof onChunk === "function") {
-    const url = `${API_BASE}/api/chat`;
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "text/event-stream",
-      },
-      body: JSON.stringify({ message: message.trim() }),
-      signal,
-    });
+  // Streaming only — always request event-stream and parse SSE via official parser
+  const url = `${API_BASE}/api/chat`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "text/event-stream",
+    },
+    body: JSON.stringify({ message: message.trim() }),
+    signal,
+  });
 
-    if (!res.ok) {
-      let body = null;
-      try {
-        const txt = await res.text();
-        body = txt ? JSON.parse(txt) : null;
-      } catch {
-        body = null;
-      }
-      const code = body?.error?.code || "INTERNAL_ERROR";
-      const msg = body?.error || body?.error?.message || body?.message || res.statusText || "Request failed";
-      const retryAfter = body?.error?.retryAfter || res.headers.get("Retry-After");
-      const error = new Error(typeof msg === "string" ? msg : msg.message || "Request failed");
-      error.code = code;
-      error.status = res.status;
-      error.retryAfter = retryAfter ? parseInt(String(retryAfter), 10) : undefined;
-      error.body = body;
-      throw error;
-    }
-
-    const contentType = res.headers.get("content-type") || "";
-    // Fallback: if server returned JSON (non-stream), parse as JSON
-    if (!contentType.includes("text/event-stream")) {
+  if (!res.ok) {
+    let body = null;
+    try {
       const txt = await res.text();
-      try {
-        const body = txt ? JSON.parse(txt) : null;
-        const full = body?.data?.message || "";
-        if (full) onChunk(full, full);
-        return full;
-      } catch {
-        return txt;
-      }
+      body = txt ? JSON.parse(txt) : null;
+    } catch {
+      body = null;
     }
-
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-    let full = "";
-    const parser = createParser((event) => {
-      if (event.type !== "event") return;
-      const data = event.data;
-      if (!data || data === "[DONE]") return;
-      try {
-        const parsed = JSON.parse(data);
-        const token = parsed.response ?? parsed.choices?.[0]?.delta?.content ?? "";
-        if (token) {
-          full += token;
-          onChunk(token, full);
-        }
-      } catch {
-        // ignore malformed
-      }
-    });
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      parser.feed(decoder.decode(value, { stream: true }));
-    }
-    return full;
+    const code = body?.error?.code || "INTERNAL_ERROR";
+    const msg = body?.error || body?.error?.message || body?.message || res.statusText || "Request failed";
+    const retryAfter = body?.error?.retryAfter || res.headers.get("Retry-After");
+    const error = new Error(typeof msg === "string" ? msg : msg.message || "Request failed");
+    error.code = code;
+    error.status = res.status;
+    error.retryAfter = retryAfter ? parseInt(String(retryAfter), 10) : undefined;
+    error.body = body;
+    throw error;
   }
 
-  // Non-streaming fallback (used by tests and when no onChunk)
-  const data = await request("/api/chat", {
-    method: "POST",
-    body: JSON.stringify({ message: message.trim() }),
+  const contentType = res.headers.get("content-type") || "";
+  // Fallback if server somehow returned JSON (e.g., mock)
+  if (!contentType.includes("text/event-stream")) {
+    const txt = await res.text();
+    try {
+      const body = txt ? JSON.parse(txt) : null;
+      const full = body?.data?.message || txt || "";
+      if (full && typeof onChunk === "function") onChunk(full, full);
+      return full;
+    } catch {
+      return txt;
+    }
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let full = "";
+  const parser = createParser((event) => {
+    if (event.type !== "event") return;
+    const data = event.data;
+    if (!data || data === "[DONE]") return;
+    try {
+      const parsed = JSON.parse(data);
+      const token = parsed.response ?? parsed.choices?.[0]?.delta?.content ?? "";
+      if (token) {
+        full += token;
+        if (typeof onChunk === "function") onChunk(token, full);
+      }
+    } catch {
+      // ignore malformed
+    }
   });
-  // Normalize: backend returns { data: { message }, meta: { requestId } }
-  return data.data?.message || "";
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    parser.feed(decoder.decode(value, { stream: true }));
+  }
+  // If no onChunk was provided (tests), still return full
+  return full;
 }
 
 export async function postContact({ name, email, message, website }) {
