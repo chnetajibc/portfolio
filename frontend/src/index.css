@@ -6,11 +6,18 @@
 
 html {
   scrollbar-gutter: stable;
-  /* Prevent Radix body scroll-lock layout shift */
+  min-height: 100%;
+  background: linear-gradient(180deg, #f4f4f1 0%, #ebe9e4 50%, #e4e1dc 100%);
+  transition: background-color 0.4s ease;
 }
 
-html, body, #root {
-  height: 100%;
+html.dark {
+  background: linear-gradient(180deg, #0a0a1a 0%, #0a0a0c 40%, #050510 100%);
+}
+
+body, #root {
+  min-height: 100%;
+  min-height: 100dvh;
 }
 
 body {
@@ -18,15 +25,13 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #f4f4f1;
-  color: #0a0a0a;
+  background: transparent;
   overflow-x: hidden;
   overscroll-behavior-y: none;
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
 html.dark body {
-  background: #0a0a0c;
   color: #f5f5f5;
 }
 
@@ -52,14 +57,13 @@ code, .font-mono {
 }
 html.dark .grain::before { opacity: 0.06; mix-blend-mode: screen; }
 
-/* Soft animated background blobs — optimized for mobile (contain + will-change) */
+/* Soft animated background blobs — optimized for mobile */
 .bg-aurora {
   position: fixed;
   inset: 0;
   overflow: hidden;
   z-index: 0;
   pointer-events: none;
-  contain: paint;
 }
 .bg-aurora::before,
 .bg-aurora::after {
@@ -70,7 +74,6 @@ html.dark .grain::before { opacity: 0.06; mix-blend-mode: screen; }
   opacity: 0.55;
   will-change: transform;
   transform: translateZ(0);
-  contain: paint;
 }
 .bg-aurora::before {
   width: 480px; height: 480px;
@@ -193,7 +196,7 @@ html.dark .thin-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0
 
 @layer base {
   * { @apply border-border; }
-  body { @apply bg-background text-foreground; }
+  body { @apply text-foreground; }
 }
 
 /* Avatar shimmer */
