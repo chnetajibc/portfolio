@@ -149,7 +149,7 @@ export default function ChatArea({ active, onActivate, onPromptAction, big = fal
 
   return (
     <div className="flex flex-col w-full h-auto min-h-[380px] lg:h-[550px] lg:min-h-0 pt-6 lg:pt-8 pb-0">
-      <div className="flex-1 min-h-0 flex flex-col gap-3 lg:gap-4 pt-2 overflow-y-auto thin-scroll pr-1">
+      <div className="flex-1 min-h-0 flex flex-col gap-3 lg:gap-4 pt-2 lg:overflow-y-auto thin-scroll pr-1">
         {currentUser && (
           <motion.div
             key={currentUser.id}
