@@ -31,7 +31,7 @@ export default function SectionModal({ openId, onClose }) {
       <DialogContent className="max-w-2xl w-[92vw] max-h-[85vh] max-h-[85dvh] lg:max-h-[80vh] lg:max-h-[80dvh] p-0 gap-0 flex flex-col bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-800">
         {section && Content && (
           <>
-            <div className="shrink-0 px-4 lg:px-6 pt-4 lg:pt-6 pb-3 lg:pb-4 border-b border-neutral-200 dark:border-neutral-800 bg-gradient-to-br from-white to-blue-50/40 dark:from-neutral-900 dark:to-blue-950/30 rounded-t-lg">
+            <div className="shrink-0 px-4 lg:px-6 pt-4 lg:pt-6 pb-3 lg:pb-4 border-b border-neutral-200 dark:border-neutral-800 bg-gradient-to-br from-white to-blue-50/40 dark:from-neutral-900 dark:to-blue-950/30">
               <DialogHeader>
                 <div className="flex items-center gap-3 text-left">
                   <div className="h-10 w-10 rounded-xl bg-blue-700 dark:bg-blue-500 text-white flex items-center justify-center shadow-[0_6px_18px_-6px_rgba(37,99,235,0.55)]">
