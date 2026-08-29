@@ -33,7 +33,7 @@ export async function handleChat(
   }
 
   // 3. AI inference — streaming via official Workers AI stream:true, piped directly
-  const model = env.AI_MODEL || "@cf/google/gemma-2b-it-lora";
+  const model = env.AI_MODEL || "@cf/meta/llama-3.2-1b-instruct";
   const messages = [
     { role: "system", content: SYSTEM_INSTRUCTIONS },
     { role: "system", content: PORTFOLIO_CONTEXT },
