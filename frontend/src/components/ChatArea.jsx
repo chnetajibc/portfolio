@@ -81,6 +81,13 @@ export default function ChatArea({ active, onActivate, onPromptAction, big = fal
             This page is a conversation, not a résumé. Ask about my work, my
             stack, or how to hire me.
           </motion.p>
+          <motion.p
+            layout
+            className="mt-3 max-w-md text-center text-neutral-600 dark:text-neutral-400 leading-relaxed px-2"
+            style={{ fontSize: big ? "15px" : "14px" }}
+          >
+            I'm Finetuning the responses. Chat will be available Tomorrow. 
+          </motion.p>
 
           <div className="mt-6 flex flex-row flex-wrap gap-2 sm:gap-2.5 justify-center items-center w-full max-w-[520px]">
             {promptsToShow.map((p, i) => (
