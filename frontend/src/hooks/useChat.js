@@ -4,7 +4,6 @@ import sectionsData from "../data/sections.json";
 import chatConfig from "../data/chat-config.json";
 
 const SMART_PROMPTS = Object.fromEntries(sectionsData.map((s) => [s.id, s.id]));
-const HIRE_KEYWORDS = chatConfig.hireKeywords;
 
 export default function useChat({ active, onActivate, onPromptAction }) {
   const [input, setInput] = useState("");
@@ -15,14 +14,10 @@ export default function useChat({ active, onActivate, onPromptAction }) {
   const inputRef = useRef(null);
 
   const checkSmartPrompt = (text) => {
-    const lower = text.toLowerCase().trim();
-    if (HIRE_KEYWORDS.some((k) => lower.includes(k))) {
-      setShowHireForm(true);
-      setCurrentAi(null);
-      return true;
-    }
+    const cleaned = text.toLowerCase().trim().replace(/[?!.,;:]+$/, "").replace(/^your\s+/, "");
     for (const [keyword, action] of Object.entries(SMART_PROMPTS)) {
-      if (lower === keyword) {
+      const stem = keyword.replace(/s$/, "");
+      if (cleaned === keyword || cleaned === stem) {
         setShowHireForm(false);
         setCurrentAi(null);
         onPromptAction?.(action);

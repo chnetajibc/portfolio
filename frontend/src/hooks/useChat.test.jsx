@@ -28,14 +28,15 @@ describe("useChat", () => {
     await waitFor(() => expect(result.current.currentAi?.text).toBe("hello reply"));
   });
 
-  it("handles hire keyword without calling API", async () => {
+  it("sends hire keyword as normal message (no longer triggers hire form)", async () => {
+    postChat.mockResolvedValue("Thanks for your interest!");
     const { result } = renderHook(() => useChat({ active: true, onActivate: vi.fn(), onPromptAction: vi.fn() }));
     act(() => result.current.setInput("hire me"));
     await act(async () => {
       await result.current.handleSend();
     });
-    expect(postChat).not.toHaveBeenCalled();
-    expect(result.current.showHireForm).toBe(true);
+    expect(postChat).toHaveBeenCalled();
+    expect(result.current.showHireForm).toBe(false);
   });
 
   it("handles section keyword via onPromptAction", async () => {

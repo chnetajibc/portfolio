@@ -52,13 +52,12 @@ describe("ChatArea", () => {
     await waitFor(() => expect(screen.getByText(/too quickly/)).toBeInTheDocument());
   });
 
-  it("hire prompt opens hire form", async () => {
-    const onPromptAction = vi.fn();
+  it("hire prompt button opens hire form", async () => {
     const user = userEvent.setup();
-    render(<ChatArea active={true} onActivate={() => {}} onPromptAction={onPromptAction} />);
-    // Type hire keyword which triggers hire form via checkSmartPrompt
-    const input = screen.getByPlaceholderText(/Continue/);
-    await user.type(input, "hire me{enter}");
+    render(<ChatArea active={true} onActivate={() => {}} onPromptAction={() => {}} />);
+    // Click the hire button to open the form
+    const hireButton = screen.getByText("How do I contact you?");
+    await user.click(hireButton);
     await waitFor(() => expect(screen.getByPlaceholderText("Jane Doe")).toBeInTheDocument());
   });
 

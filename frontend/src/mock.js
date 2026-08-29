@@ -37,13 +37,6 @@ export function generateReply(input) {
     };
   }
 
-  if (/(hire|contact|email|reach|available|freelance|recruit|opportunit|consult|startup)/.test(q)) {
-    return {
-      kind: "hire-form",
-      text: `Happy to hear it. Drop a few details and I'll get back to you...`,
-    };
-  }
-
   if (/(ai|ml|machine learning|deep learning|llm|model|neural|nlp|rag)/.test(q)) {
     return {
       kind: "text",
