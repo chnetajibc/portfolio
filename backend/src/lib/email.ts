@@ -1,4 +1,4 @@
-import type { Env } from "../config.js";
+import { CONTACT_CONFIG, VALIDATION, type Env } from "../config.js";
 import { escapeHtml } from "./validation.js";
 import { logContact } from "./logging.js";
 
@@ -8,10 +8,10 @@ export interface ContactInput {
   message: string;
 }
 
-// Fixed addresses — destination is verified and enforced at Wrangler binding level via
-// `destination_address`; code also hardcodes to prevent request-controlled recipient.
-export const CONTACT_TO = "chnetajibc@gmail.com";
-export const CONTACT_FROM = "noreply@chnetaji.com";
+// Re-export from canonical config — single source, no duplication
+// destination_address in wrangler.jsonc must match CONTACT_CONFIG.TO
+export const CONTACT_TO = CONTACT_CONFIG.TO;
+export const CONTACT_FROM = CONTACT_CONFIG.FROM;
 
 // Single Cloudflare-only implementation — no fallback, no abstraction
 export async function sendContactEmail(env: Env, input: ContactInput, requestId: string): Promise<void> {
@@ -23,8 +23,8 @@ export async function sendContactEmail(env: Env, input: ContactInput, requestId:
   }
 
   const timestamp = new Date().toISOString();
-  // Subject safely from validated name — strip CR/LF
-  const safeSubjectName = name.replace(/[\r\n]+/g, " ").trim().slice(0, 100);
+  // Subject safely from validated name — strip CR/LF, bounded by VALIDATION
+  const safeSubjectName = name.replace(/[\r\n]+/g, " ").trim().slice(0, VALIDATION.CONTACT.MAX_NAME_LENGTH);
   const subject = `New portfolio contact from ${safeSubjectName}`;
 
   const safeName = escapeHtml(name);

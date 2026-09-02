@@ -1,5 +1,8 @@
-import type { Env } from "../config.js";
+import { RATE_LIMITS, type Env } from "../config.js";
 import { logRateLimit } from "./logging.js";
+
+// Canonical period for retry-After — from RATE_LIMITS (all native limiters use 60s)
+const RETRY_PERIOD_SEC = RATE_LIMITS.CHAT.MINUTE.period;
 
 export interface RateLimitResult {
   allowed: boolean;
@@ -25,7 +28,7 @@ async function checkSingleLimit(
   try {
     const result = await limiter.limit({ key });
     if (result && typeof result.success === "boolean" && !result.success) {
-      const retryAfter = 60 - (Math.floor(Date.now() / 1000) % 60) || 60;
+      const retryAfter = RETRY_PERIOD_SEC - (Math.floor(Date.now() / 1000) % RETRY_PERIOD_SEC) || RETRY_PERIOD_SEC;
       logRateLimit({ requestId, route, retryAfter });
       return { allowed: false, retryAfter };
     }
@@ -34,7 +37,7 @@ async function checkSingleLimit(
     const err = e as { message?: string; code?: string };
     const msg = String(err?.message || "");
     if (msg.includes("Rate limit") || msg.includes("429") || err?.code === "rate_limited") {
-      const retryAfter = 60 - (Math.floor(Date.now() / 1000) % 60) || 60;
+      const retryAfter = RETRY_PERIOD_SEC - (Math.floor(Date.now() / 1000) % RETRY_PERIOD_SEC) || RETRY_PERIOD_SEC;
       logRateLimit({ requestId, route, retryAfter });
       return { allowed: false, retryAfter };
     }

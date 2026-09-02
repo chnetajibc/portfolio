@@ -1,11 +1,10 @@
+import { AI_CONFIG, getEnvConfig, isDailyLimitError } from "../config.js";
 import type { Env } from "../config.js";
 import { validateChatRequest } from "../lib/validation.js";
 import { checkRateLimit } from "../lib/rate-limit.js";
 import { errorResponse } from "../lib/response.js";
 import { logError, logAi } from "../lib/logging.js";
-import { AI_CONFIG } from "../config.js";
-import { SYSTEM_INSTRUCTIONS, GUARDRAILS } from "../ai/system-instructions.js";
-import { PORTFOLIO_CONTEXT } from "../ai/portfolio-context.js";
+import { buildChatMessages } from "../lib/ai.js";
 
 export async function handleChat(
   request: Request,
@@ -23,7 +22,7 @@ export async function handleChat(
   }
   const { message } = validation.data!;
 
-  // 2. Rate limit — native Workers Rate Limiting, 5/min, 20/hour, 40/day per IP
+  // 2. Rate limit — native Workers Rate Limiting from src/config.ts RATE_LIMITS per IP
   const rate = await checkRateLimit(env, request, requestId, "/api/chat");
   if (!rate.allowed) {
     return errorResponse(429, "Too many requests. Please try again later.", requestId, {
@@ -33,13 +32,8 @@ export async function handleChat(
   }
 
   // 3. AI inference — streaming via official Workers AI stream:true, piped directly
-  const model = env.AI_MODEL || "@cf/meta/llama-3.1-8b-instruct-fp8-fast";
-  const messages = [
-    { role: "system", content: SYSTEM_INSTRUCTIONS },
-    { role: "system", content: PORTFOLIO_CONTEXT },
-    { role: "system", content: GUARDRAILS },
-    { role: "user", content: message },
-  ];
+  const { aiModel: model } = getEnvConfig(env);
+  const messages = buildChatMessages(message);
   const start = Date.now();
   try {
     const stream = (await env.AI.run(model as never, {
@@ -77,10 +71,7 @@ export async function handleChat(
     return new Response(sseStream as unknown as BodyInit, { headers });
   } catch (e: unknown) {
     const err = e as { message?: string; status?: number };
-    const msg = String(err?.message || "");
-    const lower = msg.toLowerCase();
-    const isDailyLimit = msg.includes("3036") || lower.includes("account limited") || (err?.status === 429 && lower.includes("account limited"));
-    if (isDailyLimit) {
+    if (isDailyLimitError(err)) {
       logAi({ requestId, model, durationMs: Date.now() - start, success: false, errorCode: "DAILY_LIMIT_REACHED" });
       return errorResponse(429, "Daily limit reached", requestId, { corsHeaders: cors });
     }

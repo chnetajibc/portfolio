@@ -24,7 +24,7 @@ export async function handleContact(
   }
   const { name, email, message } = validation.data!;
 
-  // 2. Rate limit — native, 5/min, 20/hour, 40/day per IP, before email
+  // 2. Rate limit — native from src/config.ts RATE_LIMITS per IP, before email
   const rate = await checkRateLimit(env, request, requestId, "/api/contact");
   if (!rate.allowed) {
     return errorResponse(429, "Too many requests. Please try again later.", requestId, {

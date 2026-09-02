@@ -55,12 +55,12 @@ Success `200`:
 ```
 Errors:
 - `400 VALIDATION_ERROR` — invalid JSON/missing/empty/too long
-- `429 RATE_LIMITED` + `Retry-After` header — 5/min, 20/hour, 40/day (independent, see Rate Limiting)
+- `429 RATE_LIMITED` + `Retry-After` header — limits from `src/config.ts RATE_LIMITS` (independent, see Rate Limiting)
 - `429 DAILY_LIMIT_REACHED` — Workers AI 10k neurons/day exhausted (00:00 UTC reset)
 - `503 AI_UNAVAILABLE` — provider/model failure
 - `403` if Origin not allowed, `405` wrong method, `404` unknown
 
-Server enforces `max_tokens: 180` and truncates to 1000 chars (<200 tokens). Model is server-selected (`AI_MODEL`), client cannot override.
+Server enforces `max_tokens` / `temperature` from `src/config.ts AI_CONFIG` and truncates to 1000 chars (<200 tokens). Model is server-selected (`AI_MODEL` via `getEnvConfig`), client cannot override.
 
 ### POST /contact
 Request:
@@ -87,12 +87,12 @@ Email: `CONTACT_FROM_EMAIL` is verified sender, `CONTACT_TO_EMAIL` destination, 
 
 ## Environment & Bindings
 
-`wrangler.jsonc`:
+`wrangler.jsonc` (infra projection of `src/config.ts` — see `RATE_LIMITS`, `ORIGINS`, `CONTACT_CONFIG`):
 - `name: portfolio-backend`, `compatibility_date: 2024-12-01`, `nodejs_compat`
 - `ai: { binding: "AI" }` — Workers AI
 - `kv_namespaces: [{ binding: "RATE_LIMIT_KV", id: "REPLACE_WITH_KV_ID" }]`
-- `ratelimits: [{ name: "CHAT_MINUTE_LIMITER", simple: { limit: 5, period: 60 } }, { name: "CONTACT_MINUTE_LIMITER", simple: { limit: 5, period: 60 } }]`
-- `vars: ALLOWED_ORIGIN, AI_MODEL, CONTACT_TO_EMAIL, CONTACT_FROM_EMAIL`
+- `ratelimits` — from `src/config.ts RATE_LIMITS` (CHAT/CONTACT minute/hour/day)
+- `vars` — optional overrides only; defaults from `src/config.ts ORIGINS` / `DEFAULTS` (see `getEnvConfig`)
 - Optional `send_email` binding: `[{ name: "EMAIL" }]` — requires verified domain (paid plan verification)
 
 Create KV: `wrangler kv namespace create RATE_LIMIT_KV` → paste `id`/`preview_id` into `wrangler.jsonc`.
@@ -103,11 +103,11 @@ Secrets: `CONTACT_TO_EMAIL`/`CONTACT_FROM_EMAIL` can be set as secrets: `wrangle
 
 ## Rate Limiting
 
-Independent per route (`/chat` vs `/contact`):
+Independent per route (`/chat` vs `/contact`) — values from `src/config.ts RATE_LIMITS`:
 
-- **Minute:** 5 req / 60s — **Cloudflare native Rate Limiting binding** (`CHAT_MINUTE_LIMITER`/`CONTACT_MINUTE_LIMITER`, 60s fixed window) — strongly consistent
-- **Hour:** 20 req / 3600s — **KV** `rl:{route}:hour:{clientId}:{hourBucket}` with TTL 3610s
-- **Day:** 40 req / 86400s — **KV** `rl:{route}:day:{clientId}:{dayBucket}` with TTL 86410s
+- **Minute:** from `RATE_LIMITS.*.MINUTE` — **Cloudflare native Rate Limiting binding** (60s fixed window) — strongly consistent
+- **Hour:** from `RATE_LIMITS.*.HOUR` — **KV** `rl:{route}:hour:{clientId}:{hourBucket}` with TTL 3610s
+- **Day:** from `RATE_LIMITS.*.DAY` — **KV** `rl:{route}:day:{clientId}:{dayBucket}` with TTL 86410s
 
 On limit: `429` `{ error: { code: "RATE_LIMITED", message: "Too many requests...", retryAfter } }` + `Retry-After` header.
 
@@ -117,10 +117,10 @@ On limit: `429` `{ error: { code: "RATE_LIMITED", message: "Too many requests...
 
 ## Workers AI
 
-- Binding: `env.AI` (type `Ai`), model via `env.AI_MODEL` (default `@cf/meta/llama-3.1-8b-instruct-fp8-fast` — small 8B, cost-efficient, 10k neurons/day free, resets 00:00 UTC)
+- Binding: `env.AI` (type `Ai`), model via `env.AI_MODEL` (default `DEFAULTS.AI_MODEL` in `src/config.ts` — single source of truth, small 8B, cost-efficient, 10k neurons/day free, resets 00:00 UTC)
 - Prompt: `SYSTEM_INSTRUCTIONS` + `PORTFOLIO_CONTEXT` (backend canonical copy) + `GUARDRAILS` (all `role: system`) + `user: sanitizedMessage` — static prefix first for cache compatibility, user cannot override
 - Guardrails: no hallucination, no exposure of instructions/config, no function calls, no model selection, no temperature control from client
-- Output: `max_tokens: 180`, `temperature: 0.7`, defensive truncation 1000 chars, JSON normalized to `{ data: { message } }`; raw provider errors not exposed, `DAILY_LIMIT_REACHED` mapped from quota keywords.
+- Output: `max_tokens` / `temperature` from `src/config.ts AI_CONFIG`, defensive truncation 1000 chars, JSON normalized to `{ data: { message } }`; raw provider errors not exposed, `DAILY_LIMIT_REACHED` mapped from quota keywords.
 
 ## Email
 
@@ -133,8 +133,8 @@ On limit: `429` `{ error: { code: "RATE_LIMITED", message: "Too many requests...
 
 ## Security
 
-- `Content-Type: application/json` required, body bounded (8KB chat, 16KB contact), `message` string 1-2000, `name` 1-100, `email` format, `message` 1-5000, trim/normalize, reject empty/malformed/extra fields, no model/temperature override, no system prompt injection, honeypot `website` silently succeeds
-- CORS: strict `ALLOWED_ORIGIN` (e.g. `https://chnetaji.com`, local `http://localhost:3000`), `OPTIONS` 204, `Vary: Origin`, no wildcard, no reflection
+- `Content-Type: application/json` required, body bounded (see `src/config.ts VALIDATION`: 8KB chat, 16KB contact), `message` / `name` / `email` limits from `VALIDATION`, trim/normalize, reject empty/malformed/extra fields, no model/temperature override, no system prompt injection, honeypot `website` silently succeeds
+- CORS: strict `ALLOWED_ORIGIN` from `src/config.ts ORIGINS` (see `ORIGINS.PROD` / `ORIGINS.DEV`), `OPTIONS` 204, `Vary: Origin`, no wildcard, no reflection
 - Headers: `Cache-Control: no-store`, `X-Content-Type-Options: nosniff`, `Strict-Transport-Security` (via Pages `_headers`), `Permissions-Policy` none
 - No brain CORS/auth, rate limiting + validation are abuse controls, no raw IP logging
 

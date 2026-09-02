@@ -1,4 +1,9 @@
 {
+  // CANONICAL CONFIG: src/config.ts — single source of truth for all tunables
+  // - ratelimits must stay synced with src/config.ts RATE_LIMITS
+  // - send_email destination must match src/config.ts CONTACT_CONFIG.TO
+  // - vars are optional overrides only; defaults come from src/config.ts ORIGINS/DEFAULTS
+  //   (ALLOWED_ORIGIN defaults to ORIGINS.PROD in production, ORIGINS.DEV when ENVIRONMENT=development)
   "name": "portfolio-backend",
   "main": "src/index.ts",
   "compatibility_date": "2024-12-01",
@@ -13,10 +18,7 @@
     { "name": "CONTACT_RATE_LIMIT_HOUR", "namespace_id": "5", "simple": { "limit": 20, "period": 60 } },
     { "name": "CONTACT_RATE_LIMIT_DAY", "namespace_id": "6", "simple": { "limit": 40, "period": 60 } }
   ],
-  "vars": {
-    "ALLOWED_ORIGIN": "https://chnetaji.com",
-    "AI_MODEL": "@cf/meta/llama-3.1-8b-instruct-fp8-fast"
-  },
+  "vars": {},
   "send_email": [
     {
       "name": "EMAIL",

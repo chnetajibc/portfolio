@@ -1,4 +1,4 @@
 # Copy to .dev.vars for `wrangler dev`
-ALLOWED_ORIGIN=http://localhost:3000
-AI_MODEL=@cf/meta/llama-3.1-8b-instruct-fp8-fast
+# All tunables are in src/config.ts — single source of truth.
+# No overrides needed; defaults handle local vs prod via ENVIRONMENT.
 ENVIRONMENT=development

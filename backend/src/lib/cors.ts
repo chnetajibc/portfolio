@@ -1,4 +1,4 @@
-import { getEnvConfig, type Env } from "../config.js";
+import { CORS_CONFIG, getEnvConfig, type Env } from "../config.js";
 
 // CORS — never reflect arbitrary Origin, only configured ALLOWED_ORIGIN
 export function getCorsHeaders(request: Request, env: Env): Record<string, string> | null {
@@ -9,14 +9,14 @@ export function getCorsHeaders(request: Request, env: Env): Record<string, strin
   if (!origin) return null;
 
   // Only allow configured origin — strict, not dynamic reflection
-  // For local dev, ALLOWED_ORIGIN should be http://localhost:3000
+  // See src/config.ts ORIGINS.DEV / ORIGINS.PROD
   if (origin !== allowedOrigin) return null;
 
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, X-Request-ID",
-    "Access-Control-Max-Age": "86400",
+    "Access-Control-Allow-Methods": CORS_CONFIG.ALLOW_METHODS,
+    "Access-Control-Allow-Headers": CORS_CONFIG.ALLOW_HEADERS,
+    "Access-Control-Max-Age": CORS_CONFIG.MAX_AGE,
     "Vary": "Origin",
   };
 }

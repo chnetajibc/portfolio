@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { handleRequest } from "../src/router.js";
+import { DEFAULTS, ORIGINS, VALIDATION, AI_CONFIG } from "../src/config.js";
 import type { Env } from "../src/config.js";
 import { CONTACT_TO, CONTACT_FROM } from "../src/lib/email.js";
 
@@ -27,8 +28,8 @@ function createMockEnv(overrides: Partial<Env> = {}): Env {
     CONTACT_RATE_LIMIT_HOUR: mk(),
     CONTACT_RATE_LIMIT_DAY: mk(),
     EMAIL: mockEmail,
-    ALLOWED_ORIGIN: "https://chnetaji.com",
-    AI_MODEL: "@cf/meta/llama-3.1-8b-instruct-fp8-fast",
+    ALLOWED_ORIGIN: ORIGINS.PROD,
+    AI_MODEL: DEFAULTS.AI_MODEL,
     ENVIRONMENT: "test",
     ...overrides,
   } as Env;
@@ -61,9 +62,9 @@ describe("unsupported HTTP methods -> 405", () => {
 describe("OPTIONS -> correct CORS response", () => {
   it("returns 204 with CORS headers for allowed origin", async () => {
     const env = createMockEnv();
-    const res = await handleRequest(req("https://api.test/api/chat", { method: "OPTIONS", headers: { Origin: "https://chnetaji.com" } }), env);
+    const res = await handleRequest(req("https://api.test/api/chat", { method: "OPTIONS", headers: { Origin: ORIGINS.PROD } }), env);
     expect(res.status).toBe(204);
-    expect(res.headers.get("Access-Control-Allow-Origin")).toBe("https://chnetaji.com");
+    expect(res.headers.get("Access-Control-Allow-Origin")).toBe(ORIGINS.PROD);
     expect(res.headers.get("Vary")).toContain("Origin");
   });
 });
@@ -95,7 +96,7 @@ describe("/api/chat empty message", () => {
 describe("/api/chat oversized message", () => {
   it("rejects >2000", async () => {
     const env = createMockEnv();
-    const res = await handleRequest(req("https://api.test/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: "a".repeat(2001) }) }), env);
+    const res = await handleRequest(req("https://api.test/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: "a".repeat(VALIDATION.CHAT.MAX_MESSAGE_LENGTH + 1) }) }), env);
     expect(res.status).toBe(400);
     const body: any = await res.json();
     expect(body.error).toBe("Invalid request");
@@ -142,7 +143,7 @@ describe("/api/contact missing message", () => {
 describe("/api/contact oversized", () => {
   it("rejects oversized", async () => {
     const env = createMockEnv();
-    const res = await handleRequest(req("https://api.test/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: "a".repeat(101), email: "a@b.com", message: "hi" }) }), env);
+    const res = await handleRequest(req("https://api.test/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: "a".repeat(VALIDATION.CONTACT.MAX_NAME_LENGTH + 1), email: "a@b.com", message: "hi" }) }), env);
     expect(res.status).toBe(400);
   });
 });
@@ -223,7 +224,7 @@ describe("AI success normalization", () => {
     expect(text).toContain("AI reply");
     expect(res.headers.get("X-Request-ID")).toBeDefined();
     expect((env.AI.run as any).mock.calls[0][1].stream).toBe(true);
-    expect((env.AI.run as any).mock.calls[0][1].max_tokens).toBe(180);
+    expect((env.AI.run as any).mock.calls[0][1].max_tokens).toBe(AI_CONFIG.MAX_TOKENS);
   });
   it("returns streaming SSE with proper chunks", async () => {
     const env = createMockEnv();
@@ -284,9 +285,9 @@ describe("email success", () => {
     expect(sendSpy).toHaveBeenCalledTimes(1);
     const args = (sendSpy as any).mock.calls[0][0];
     expect(args.to).toBe(CONTACT_TO);
-    expect(args.to).toBe("chnetajibc@gmail.com");
+    expect(args.to).toBe(DEFAULTS.CONTACT_TO);
     expect(args.from).toBe(CONTACT_FROM);
-    expect(args.from).toBe("noreply@chnetaji.com");
+    expect(args.from).toBe(DEFAULTS.CONTACT_FROM);
     expect(args.replyTo).toBe("john@example.com");
     expect(args.headers).toBeUndefined();
     expect(args.subject).toContain("John Doe");
@@ -326,7 +327,7 @@ describe("email recipient cannot be controlled", () => {
     const sendSpy = env.EMAIL.send as unknown as ReturnType<typeof vi.fn>;
     await handleRequest(req("https://api.test/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: "John", email: "attacker@evil.com", message: "hi" }) }), env);
     const args = (sendSpy as any).mock.calls[0][0];
-    expect(args.to).toBe("chnetajibc@gmail.com");
+    expect(args.to).toBe(DEFAULTS.CONTACT_TO);
     expect(args.to).not.toBe("attacker@evil.com");
   });
   it("visitor email is used only as Reply-To", async () => {
