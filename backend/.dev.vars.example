@@ -1,4 +1,4 @@
 # Copy to .dev.vars for `wrangler dev`
 ALLOWED_ORIGIN=http://localhost:3000
-AI_MODEL=@cf/meta/llama-3.1-8b-instruct
+AI_MODEL=@cf/meta/llama-3.1-8b-instruct-fp8-fast
 ENVIRONMENT=development

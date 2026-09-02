@@ -22,7 +22,7 @@ export interface Env {
 // Fallback constants if env not set (local dev)
 export const DEFAULTS = {
   ALLOWED_ORIGIN: "http://localhost:3000",
-  AI_MODEL: "@cf/meta/llama-3.1-8b-instruct-fp8-fast-b-instruct",
+  AI_MODEL: "@cf/meta/llama-3.1-8b-instruct-fp8-fast",
 } as const;
 
 // Rate limit constants — native binding only (5 per 60s for /api/chat)

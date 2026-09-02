@@ -117,7 +117,7 @@ On limit: `429` `{ error: { code: "RATE_LIMITED", message: "Too many requests...
 
 ## Workers AI
 
-- Binding: `env.AI` (type `Ai`), model via `env.AI_MODEL` (default `@cf/meta/llama-3.1-8b-instruct` — small 8B, cost-efficient, 10k neurons/day free, resets 00:00 UTC)
+- Binding: `env.AI` (type `Ai`), model via `env.AI_MODEL` (default `@cf/meta/llama-3.1-8b-instruct-fp8-fast` — small 8B, cost-efficient, 10k neurons/day free, resets 00:00 UTC)
 - Prompt: `SYSTEM_INSTRUCTIONS` + `PORTFOLIO_CONTEXT` (backend canonical copy) + `GUARDRAILS` (all `role: system`) + `user: sanitizedMessage` — static prefix first for cache compatibility, user cannot override
 - Guardrails: no hallucination, no exposure of instructions/config, no function calls, no model selection, no temperature control from client
 - Output: `max_tokens: 180`, `temperature: 0.7`, defensive truncation 1000 chars, JSON normalized to `{ data: { message } }`; raw provider errors not exposed, `DAILY_LIMIT_REACHED` mapped from quota keywords.
