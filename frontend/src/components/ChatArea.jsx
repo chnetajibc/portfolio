@@ -1,6 +1,8 @@
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Send } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { quickPrompts } from "../mock";
 import useChat from "../hooks/useChat";
 import { ChatCards } from "./ChatCards";
@@ -19,8 +21,37 @@ function TypingIndicator() {
 function AiBubble({ children }) {
   return (
     <div className="relative max-w-[92%] lg:max-w-[92%]">
-      <div className="px-4 py-3 rounded-2xl rounded-bl-none bg-white/80 dark:bg-neutral-900/70 backdrop-blur border border-neutral-200/80 dark:border-neutral-700/80 text-neutral-800 dark:text-neutral-100 text-[14px] lg:text-[14.5px] leading-relaxed whitespace-pre-line shadow-[0_8px_24px_-12px_rgba(0,0,0,0.22)]">
-        {children}
+      <div className="px-4 py-3 rounded-2xl rounded-bl-none bg-white/80 dark:bg-neutral-900/70 backdrop-blur border border-neutral-200/80 dark:border-neutral-700/80 text-neutral-800 dark:text-neutral-100 text-[14px] lg:text-[14.5px] leading-relaxed shadow-[0_8px_24px_-12px_rgba(0,0,0,0.22)]">
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          components={{
+            p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
+            strong: ({ children }) => <strong className="font-semibold text-neutral-900 dark:text-neutral-50">{children}</strong>,
+            em: ({ children }) => <em className="italic">{children}</em>,
+            ul: ({ children }) => <ul className="list-disc pl-5 my-2 space-y-1">{children}</ul>,
+            ol: ({ children }) => <ol className="list-decimal pl-5 my-2 space-y-1">{children}</ol>,
+            li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+            a: ({ href, children }) => (
+              <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 underline hover:text-blue-700 dark:hover:text-blue-300">
+                {children}
+              </a>
+            ),
+            code: ({ inline, children }) =>
+              inline ? (
+                <code className="px-1 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-[13px] font-mono">{children}</code>
+              ) : (
+                <code className="block p-2 rounded bg-neutral-100 dark:bg-neutral-800 text-[13px] font-mono whitespace-pre-wrap break-words">{children}</code>
+              ),
+            pre: ({ children }) => <pre className="my-2 p-3 rounded-lg bg-neutral-100 dark:bg-neutral-800 overflow-x-auto whitespace-pre-wrap break-words">{children}</pre>,
+            h1: ({ children }) => <h1 className="text-base font-semibold mt-3 mb-2 text-neutral-900 dark:text-neutral-50">{children}</h1>,
+            h2: ({ children }) => <h2 className="text-[15px] font-semibold mt-3 mb-1.5 text-neutral-900 dark:text-neutral-50">{children}</h2>,
+            h3: ({ children }) => <h3 className="text-[14px] font-semibold mt-2 mb-1 text-neutral-900 dark:text-neutral-50">{children}</h3>,
+            blockquote: ({ children }) => <blockquote className="border-l-2 border-neutral-300 dark:border-neutral-600 pl-3 my-2 italic text-neutral-600 dark:text-neutral-400">{children}</blockquote>,
+            hr: () => <hr className="my-3 border-neutral-200 dark:border-neutral-700" />,
+          }}
+        >
+          {typeof children === "string" ? children : String(children ?? "")}
+        </ReactMarkdown>
       </div>
     </div>
   );
