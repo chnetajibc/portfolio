@@ -2,77 +2,410 @@
 // Factual source of truth for chnetaji.com portfolio conversations.
 
 export const PORTFOLIO_CONTEXT = `
-# PORTFOLIO IDENTITY
-Name: CH Netaji Bhadraiahnath Chowdary (Preferred name: Netaji)
-Location: Chennai, India | Email: chnetajibc@gmail.com | LinkedIn: linkedin.com/in/chnetaji
-Identity: Software Engineer, AI/ML Engineer, Backend Engineer, Freelancer, Entrepreneur.
-Education: B.E. Computer Science and Engineering (Specialization: Data Science), Sathyabama Institute of Science & Technology, Chennai (2022 – 2026). CGPA: 9.0/10.
-Current Status: Completed B.E. in 2026. Documented experience consists of internships and project-based work.
+<PORTFOLIO>
 
-# EXPERIENCE
+<IDENTITY>
+name: CH Netaji Bhadraiahnath Chowdary
+preferred_name: Netaji
+location: Chennai, India
+email: chnetajibc@gmail.com
+linkedin: linkedin.com/in/chnetaji
+professional_focus:
+  • Software Engineering
+  • Backend Engineering
+  • AI/ML Engineering
+</IDENTITY>
 
-## Amazon — SDE Intern (Alexa+ Team)
-Location: Bengaluru | Period: January 2026 – June 2026
-• Work 1 (Playback Termination / Error Classification): Engineered an Alexa+ 1P Expert using error classification models and downstream service integrations. Correlated audio telemetry with device configuration events to contextualize ambiguous "Why did you stop?" utterances.
-• Work 2 (Spotify Voice Integration): Developed an Alexa+ 1P Expert using Alexa Skills Kit (ASK) and third-party audio partner MCP AddOn delegation for voice-controlled Spotify interactions. Implemented prompt optimization, customer feature gating (allowlisted), and AWS CDK skill deployment. Result: Reduced latency to under 1 second.
-• Work 3 (Echo Show Video Ad Playback): Optimized video ad playback across Echo Show devices via codec analysis, bitrate efficiency, and hardware acceleration strategies. Targeted near-zero CPU/GPU/RAM overhead while maintaining media rendering.
-• Work 4 (Adaptive UI): Styled adaptive UI components in React-Native for responsive rendering across Echo Show display form factors.
-• Strict Boundaries: Do not claim full-time Amazon employment, overall Alexa+ ownership, unlisted cloud/metrics, production scale, or user counts.
 
-## Detect Technologies — AI Engineering Intern
-Location: Chennai | Period: September 2025 – November 2025
-• Work 1 (Model-as-a-Service Platform): Designed an internal MaaS platform using Triton Inference Server for model serving, exposing deep-learning models through APIs to simplify cross-functional integration.
-• Work 2 (Synthetic Dataset Framework): Architected a modular synthetic dataset generation framework orchestrating multiple models to automate image generation and editing for enterprise training.
-• Strict Boundaries: Do not claim specific cloud providers, Kubernetes, unlisted model architectures, or traffic scale unless documented.
+<EDUCATION>
+degree: B.E. Computer Science and Engineering
+specialization: Data Science
+institution: Sathyabama Institute of Science & Technology
+location: Chennai
+period: 2022 - 2026
+cgpa: 9.0/10
+</EDUCATION>
 
-## Smilo Data Consultancy — Intern
-Location: Remote | Period: May 2025 – August 2025
-• Work: Engineered an end-to-end FastAPI backend automation pipeline integrating Autotask and Datto RMM. Implemented RAG-based vector search for real-time SOP retrieval, intelligent script recommendations, and remote remediation execution.
-• Strict Boundaries: Do not reduce this to generic "intelligent automation"; emphasize the concrete FastAPI + Autotask + Datto RMM + RAG integrations.
 
-## HCLTech — Project Intern
-Location: Remote | Period: July 2024 – October 2024
-• Work: Trained an LSTM-based Voice Emotion Recognition model using MFCC audio features. Implemented temporal audio segmentation, parallelized inference, and result aggregation for multi-class emotional classification.
-• Result: 30% reduction in processing latency.
-• Strict Boundaries: Do not invent dataset size, specific emotion counts (beyond "multi-class"), accuracy, or deployment environments.
+<EXPERIENCE>
 
-# PROJECTS
+<ROLE id="amazon">
+company: Amazon
+role: SDE Intern
+team: Alexa+
+location: Bengaluru, India
+period: January 2026 - June 2026
+employment_type: Internship
 
-## CTI Threat Analyser
-• Tech Stack: Python, Flask, LLM, MITRE ATT&CK.
-• Work: Built backend infrastructure for Cyber Threat Intelligence (CTI) to automate ingestion and normalization of unstructured threat reports. Used LLMs to extract threat entities and map them to MITRE ATT&CK tactics. Built an LLM-powered cybersecurity chatbot for context-aware analysis and mitigation recommendations.
+<WORK id="amazon_playback">
+topic: Alexa+ playback termination / error classification
 
-## Image Recognition Chatbot
-• Tech Stack: Ollama, Llama 3.1:7b, Salesforce BLIP, Local/On-device AI.
-• Work: Interactive local AI chatbot focused on the electronics domain. Used Llama 3.1:7b for text generation and Salesforce BLIP for domain-specific image recognition.
-• Result: 70% accuracy. (Do not claim cloud inference, production deployment, or >70% accuracy).
+technology_usage:
+  • error classification models
+  • downstream service integrations
+  • audio telemetry
+  • device configuration events
 
-# PUBLICATION
-• Title: "Data Analytics Using Agentic AI" (To appear in IEEE Xplore, April 2026).
-• Work: Describes a multi-agent AI system for data analytics using MCP tools. Introduced an Interaction Gateway (IG) for context optimization and a Semantic Structured Schema (SSS) for rendering dynamic interactive visuals on the frontend.
+work:
+  • Engineered an Alexa+ 1P Expert.
+  • Used error classification models and downstream service integrations.
+  • Correlated audio telemetry with device configuration events.
+  • Contextualized ambiguous "Why did you stop?" playback termination utterances.
+  • Produced actionable responses from the contextualized termination information.
+</WORK>
 
-# TECHNICAL SKILLS & MAPPING
-IMPORTANT: Skills listed below do NOT imply project usage unless explicitly mapped.
 
-• Programming Languages: Python (explicitly used in CTI Analyser & FastAPI automation), JavaScript, TypeScript, Java, C, Rust, Go (JS/TS/Java/C/Rust/Go are listed skills only; do not invent project usage).
-• AI/ML Frameworks: PyTorch (skill + IBM/Coursera cert), TensorFlow, LangChain, LangGraph (listed skills only; no specific project specified).
-• Web/App Frameworks: FastAPI (Smilo), Flask (CTI Analyser), React-Native (Amazon Echo Show), React.js, Next.js, Express.js (listed skills only).
-• Databases / Data Systems: Redis, MongoDB, DynamoDB, Pinecone, MySQL, PostgreSQL, ChromaDB (listed skills only).
-• Tools & Infra: AWS CDK (Amazon Alexa+), MCP / MCP AddOn delegation (Amazon Alexa+ & IEEE Publication), GCP, Docker, Linux, Git, Postman, Swagger, Figma, Flipper (listed skills only unless noted).
+<WORK id="amazon_spotify">
+topic: Alexa+ Spotify voice integration
 
-# ACHIEVEMENTS & COMMUNITY
-• LeetCode: 250+ problems solved, 50+ day streak (2024, focus on algorithms & data structures).
-• Open Weaver & SIC Make-a-thon: 1st Place / Winner (Feb 2024, 48-hour event for rapid digital product design).
-• Chancellor's Merit Scholarship: Awarded by Sathyabama Institute for academic excellence (July 2023).
-• WARTECH — Play with Python: Winner out of 80+ competitors in Python programming and debugging contest (April 2023).
-• HiveMind AI Community: Member of peer-driven AI collective focused on practical ML/AI learning (Jan 2025 – Dec 2025; non-employment).
-• Certifications: Python for Data Science (NPTEL / IIT Madras), Introduction to Neural Networks & PyTorch (Coursera / IBM).
+technology_usage:
+  • Alexa Skills Kit (ASK)
+  • MCP AddOn delegation
+  • 3P audio partner integration
+  • prompt optimization
+  • feature gating
+  • AWS CDK
 
-# NON-TECHNICAL ATTRIBUTES & CONTACT
-• Soft Skills: Analytical skills, critical thinking, problem-solving (backed by WARTECH, LeetCode, and technical experimentation).
-• Contact: Email: chnetajibc@gmail.com | LinkedIn: linkedin.com/in/chnetaji | Contact Endpoint: /contact
+work:
+  • Developed an Alexa+ 1P Expert.
+  • Integrated a 3P audio partner using MCP AddOn delegation.
+  • Enabled voice-controlled interactions with Spotify.
+  • Implemented prompt optimization.
+  • Implemented feature gating for allowlisted customers.
+  • Used AWS CDK for skill deployment.
 
-# ABSENT INFORMATION
-If asked about details not present in this context, respond:
-"I haven't shared that detail on my portfolio."
+result:
+  latency: under 1 second
+</WORK>
+
+
+<WORK id="amazon_video">
+topic: Echo Show video ad playback
+
+technology_usage:
+  • codec analysis
+  • bitrate analysis
+  • hardware acceleration
+
+work:
+  • Analyzed video codec formats and bitrate efficiency across Echo Show devices.
+  • Worked on hardware acceleration strategies.
+  • Targeted near-zero CPU, GPU, and RAM overhead while maintaining media rendering.
+</WORK>
+
+
+<WORK id="amazon_ui">
+topic: Adaptive Echo Show UI
+
+technology_usage:
+  • React-Native
+
+work:
+  • Styled adaptive UI components in React-Native.
+  • Supported responsive rendering across Echo Show display form factors.
+</WORK>
+
+</ROLE>
+
+
+<ROLE id="detect">
+company: Detect Technologies
+role: AI Engineering Intern
+location: Chennai, India
+period: September 2025 - November 2025
+employment_type: Internship
+
+<WORK id="detect_maas">
+topic: Model-as-a-Service platform
+
+technology_usage:
+  • Triton Inference Server
+  • deep-learning models
+  • APIs
+
+work:
+  • Designed an internal Model-as-a-Service platform.
+  • Used Triton Inference Server for model serving.
+  • Exposed deep-learning models through APIs.
+  • Simplified model integration for software teams.
+</WORK>
+
+
+<WORK id="detect_synthetic_data">
+topic: Synthetic dataset generation framework
+
+technology_usage:
+  • multi-model orchestration
+  • image generation
+  • image editing
+
+work:
+  • Architected a modular synthetic dataset generation framework.
+  • Orchestrated multiple AI models.
+  • Automated image generation and editing.
+  • Supported enterprise model-training dataset creation.
+</WORK>
+
+</ROLE>
+
+
+<ROLE id="smilo">
+company: SMILO / Smilo Data Consultancy
+role: Intern
+location: Remote
+period: May 2025 - August 2025
+employment_type: Internship
+
+technology_usage:
+  • Python
+  • FastAPI
+  • Autotask
+  • Datto RMM
+  • RAG
+  • vector search
+
+work:
+  • Engineered an end-to-end automation pipeline using FastAPI.
+  • Integrated Autotask and Datto RMM.
+  • Implemented RAG-based vector search.
+  • Retrieved relevant SOPs in real time.
+  • Generated contextual script recommendations.
+  • Integrated remote remediation execution.
+</ROLE>
+
+
+<ROLE id="hcl">
+company: HCLTech
+role: Project Intern
+location: Remote
+period: July 2024 - October 2024
+employment_type: Internship
+
+technology_usage:
+  • LSTM
+  • MFCC
+  • temporal audio segmentation
+  • parallelized inference
+  • result aggregation
+
+work:
+  • Trained an LSTM-based Voice Emotion Recognition model.
+  • Used MFCC features extracted from audio clips.
+  • Implemented temporal audio segmentation.
+  • Used parallelized inference and result aggregation.
+  • Performed multi-class emotional classification.
+
+result:
+  processing_latency_reduction: 30%
+</ROLE>
+
+</EXPERIENCE>
+
+
+<PROJECTS>
+
+<PROJECT id="cti_threat_analyser">
+name: CTI Threat Analyser
+
+technology_usage:
+  • Python
+  • Flask
+  • LLM
+  • MITRE ATT&CK
+
+work:
+  • Built backend infrastructure for Cyber Threat Intelligence.
+  • Automated ingestion of unstructured threat reports.
+  • Normalized threat-report data.
+  • Used LLMs to extract threat entities.
+  • Mapped extracted entities to MITRE ATT&CK tactics.
+  • Built an LLM-powered cybersecurity chatbot.
+  • Supported context-aware analysis and mitigation recommendations.
+</PROJECT>
+
+
+<PROJECT id="image_recognition_chatbot">
+name: Image Recognition Chatbot
+
+technology_usage:
+  • Ollama
+  • Llama 3.1:7b
+  • Salesforce BLIP
+  • local/on-device AI
+
+domain:
+  electronics
+
+work:
+  • Built an interactive local AI chatbot.
+  • Used Ollama with Llama 3.1:7b for text generation.
+  • Used Salesforce BLIP for domain-specific image recognition.
+
+result:
+  accuracy: 70%
+</PROJECT>
+
+</PROJECTS>
+
+
+<TECHNICAL_SKILLS>
+
+<PROGRAMMING_LANGUAGES>
+• Python
+• JavaScript
+• TypeScript
+• Java
+• C
+• Rust
+• Go
+</PROGRAMMING_LANGUAGES>
+
+<AI_ML_FRAMEWORKS>
+• PyTorch
+• TensorFlow
+• LangChain
+• LangGraph
+</AI_ML_FRAMEWORKS>
+
+<WEB_FRAMEWORKS>
+• FastAPI
+• Flask
+• React.js
+• Next.js
+• React-Native
+• Express.js
+</WEB_FRAMEWORKS>
+
+<DATABASES>
+• Redis
+• MongoDB
+• DynamoDB
+• Pinecone
+• MySQL
+• PostgreSQL
+• ChromaDB
+</DATABASES>
+
+<TOOLS_AND_INFRASTRUCTURE>
+• AWS
+• GCP
+• Docker
+• Linux
+• Git
+• Postman
+• Swagger
+• Figma
+• Flipper
+• MCP
+</TOOLS_AND_INFRASTRUCTURE>
+
+IMPORTANT:
+The skills above are skills listed on the portfolio.
+Only the technology mappings explicitly documented under EXPERIENCE or PROJECTS establish where a technology was actually used.
+</TECHNICAL_SKILLS>
+
+
+<ACHIEVEMENTS>
+
+<ACHIEVEMENT id="leetcode">
+activity: LeetCode
+result:
+  • 250+ problems solved
+  • 50+ day streak
+period: 2024
+focus:
+  • algorithms
+  • data structures
+</ACHIEVEMENT>
+
+<ACHIEVEMENT id="makeathon">
+event: Open Weaver & SIC Make-a-thon
+result: 1st Place / Winner
+date: February 2024
+details:
+  • 48-hour event
+  • rapid digital product design and development
+</ACHIEVEMENT>
+
+<ACHIEVEMENT id="scholarship">
+award: Chancellor's Merit Scholarship
+institution: Sathyabama Institute of Science & Technology
+date: July 2023
+reason: academic excellence
+</ACHIEVEMENT>
+
+<ACHIEVEMENT id="wartech">
+event: WARTECH - Play with Python
+result: Winner
+date: April 2023
+details:
+  • Python programming and debugging contest
+  • competed against 80+ competitors
+</ACHIEVEMENT>
+
+</ACHIEVEMENTS>
+
+
+<PUBLICATION>
+
+title: Data Analytics Using Agentic AI
+status: To appear in IEEE Xplore
+date: April 2026
+
+work:
+  • Describes a multi-agent AI system for data analytics.
+  • Uses MCP tools.
+  • Introduces an Interaction Gateway (IG).
+  • Uses the Interaction Gateway for context optimization.
+  • Introduces a Semantic Structured Schema (SSS).
+  • Uses SSS to render dynamic interactive visuals in the frontend.
+</PUBLICATION>
+
+
+<CERTIFICATIONS>
+
+• Python for Data Science — NPTEL / IIT Madras
+• Introduction to Neural Networks & PyTorch — Coursera / IBM
+
+</CERTIFICATIONS>
+
+
+<COMMUNITY>
+
+organization: HiveMind AI Community
+role: Member
+period: January 2025 - December 2025
+
+description:
+Peer-driven AI community focused on practical ML/AI learning and hands-on projects outside academic coursework.
+
+IMPORTANT:
+This is community involvement, not employment.
+</COMMUNITY>
+
+
+<CONTACT>
+
+email: chnetajibc@gmail.com
+linkedin: linkedin.com/in/chnetajibc
+
+</CONTACT>
+
+
+<PROFESSIONAL_STATUS>
+
+completed_degree: 2026
+
+documented_experience_type:
+  • internships
+  • project-based work
+  • academic/community technical work
+
+IMPORTANT:
+Do not describe Netaji as having full-time professional experience unless explicitly supported elsewhere in this context.
+
+</PROFESSIONAL_STATUS>
+
+
+</PORTFOLIO>
 `;
