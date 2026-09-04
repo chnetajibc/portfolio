@@ -4,10 +4,9 @@
   "initials": "NBC",
   "shortInitial": "N",
   "titles": [
-    "Entrepreneur",
-    "Freelancer",
     "Software Engineer",
-    "AI Engineer"
+    "AI Engineer",
+    "Freelancer"
   ],
   "bio": "I'm a software engineer who lives at the intersection of systems & curious ideas. I ship software by the day and sketch orbital trajectories by night.\n\nLately I'm obsessed with making AI feel less like a black box and more like a thoughtful colleague — {blue}so this page is a conversation, not a résumé.{/blue}",
   "location": "Chennai, India",
